@@ -7,6 +7,38 @@
     <title>Developers name</title>
   </head>
   <body>
+    <p class="labelish">Payment Method:</p>
+    <div id="paymentContainer" name="paymentContainer" class="paymentOptions">
+      <div id="payCC" class="floatBlock">
+        <label for="paymentCC">
+          <input
+            id="paymentCC"
+            name="paymentType"
+            type="radio"
+            value="CREDIT_CARD"
+          />
+          Credit Card
+        </label>
+      </div>
+
+      <div id="payInvoice" class="floatBlock">
+        <label for="paymentInv">
+          <input
+            id="paymentInv"
+            name="paymentType"
+            type="radio"
+            value="INVOICE"
+          />
+          Invoice
+        </label>
+      </div>
+
+      <div id="pay3rdParty" class="floatBlock">
+        <label for="payment3rd">
+          <input id="payment3rd" name="paymentType" type="radio" /> Third Party
+        </label>
+      </div>
+    </div>
     <h1>Cool Anoop</h1>
     <h1>Batman Deepak</h1>
   </body>
