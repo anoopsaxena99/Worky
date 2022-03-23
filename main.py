@@ -1,13 +1,15 @@
 # from Worky import create_app
 from flask import Flask
 from flaskext.mysql import MySQL
+from pymysql import NULL
 import yaml
 from flask import Blueprint,render_template,request
 
 app=Flask(__name__)
 
+
+#Database Configuration
 db=yaml.load(open('db.yaml'))
-  
 
 app.config["MYSQL_DATABASE_HOST"] = db['mysql_host']
 app.config["MYSQL_DATABASE_USER"] = db['mysql_user']
@@ -15,6 +17,7 @@ app.config["MYSQL_DATABASE_PASSWORD"] = db['mysql_password']
 app.config["MYSQL_DATABASE_DB"] = db['mysql_db']
 mysql=MySQL(app)
 
+#routes on the website
 @app.route('/')
 def home():
   return render_template('home.html')
@@ -35,11 +38,42 @@ def login():
 def signup():
   if request.method == 'POST':
     userdetails=request.form
-    email=userdetails.get('typeEmailX')
-    name=userdetails.get('name')
 
-    # cur=mysql.connection.cursor()
+    #data from sign up page
+
+        #personal stuff
+    Num=userdetails.get('typeNumX')
+    Adhar_Id=userdetails.get('adhar')
+    password1 = request.form.get('password1')
+    password2 = request.form.get('password2')
+    name=userdetails.get('name')
+    dob = request.form.get('dob')
+    Adress=request.form.get('adress')
+
+        #skills details
+    NA=request.form.get('one')
+    Labour=request.form.get('two')
+    Mechanic=request.form.get('three')
+    Electrician=request.form.get('four')
+    Carpentary=request.form.get('five')
+    others=request.form.get('six')
+    
+        #wage related
+    NA1=request.form.get('wage_na')    
+    min_salary=request.form.get('min_salary')
+
+    #Cursor of the database
+
     cur = mysql.get_db().cursor()
+    cur.execute("SELECT * from users where email='%s'"%email1)
+    rows = cur.fetchall()
+    if(rows!=NULL) : 
+      x=0
+      for row in rows:
+        print(row[0])
+        x=x+1
+      print("{0} no of entries already there".format(x))   
+      return("{0} no of entries already there".format(x))  
     cur.execute("INSERT INTO users(name,email) VALUES(%s,%s)",(name ,email))
     mysql.get_db().commit()
     cur.close()
