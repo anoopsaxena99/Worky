@@ -20,13 +20,13 @@ app.config["MYSQL_DATABASE_DB"] = db['mysql_db']
 mysql=MySQL(app)
 
 #routes on the website
-#class customer_work(db.model1):
- # sno = db.Column(db.Integer, primery_key = True)
-  #work_title = db.Column(db.String(300), nullable = True)
-  #desc = db.Column(db.String(500), nullable = True)
-  #wotype = db.Column(db.String(50), nullable = True)
-  #Location = db.Column(db.String(50), nullable = True)
-  #date_created = db.Column(db.Datetime, default = datetime.utcnow)
+class customer_work(db.model1):
+ sno = db.Column(db.Integer, primery_key = True)
+  work_title = db.Column(db.String(300), nullable = True)
+  desc = db.Column(db.String(500), nullable = True)
+  wotype = db.Column(db.String(50), nullable = True)
+  Location = db.Column(db.String(50), nullable = True)
+  date_created = db.Column(db.Datetime, default = datetime.utcnow)
 
 
 @app.route('/')
