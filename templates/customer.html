@@ -42,7 +42,7 @@
               More
             </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/guide">Guide</a>
+                        <a class="dropdown-item" href="/worker">worker</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/support">Our Support</a>
                     </div>
@@ -79,6 +79,13 @@
             <label for="Location" class="form-label">Location of work</label>
             <input type="text" class="form-control" id="Location">
         </div>
+
+        <div class="my-3">
+            <label for="Price" class="form-label">Price offer</label>
+            <input type="text" class="form-control" id="Price">
+        </div>
+
+
         <br>
         <div>
             <button type="submit" class="btn btn-primary">Submit</button>
@@ -91,9 +98,11 @@
             <thead>
                 <tr>
                     <th scope="col">SNo</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th scope="col">work title </th>
+                    <th scope="col">Work Type</th>
+                    <th scope="col">Price offer</th>
+                    <th scope="col">Location</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -101,18 +110,29 @@
                     <th scope="row">1</th>
                     <td>Mark</td>
                     <td>Otto</td>
-                    <td>@mdo</td>
+                    <td>500-1000</td>
+                    <td>Chandani chowk</td>
+                    <td><button type="button" class="btn btn-outline-dark btn-sm mx-1">update</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm mx-1">delete</button></td>
                 </tr>
                 <tr>
                     <th scope="row">2</th>
                     <td>Jacob</td>
                     <td>Thornton</td>
                     <td>@fat</td>
+                    <td>Chandani chowk</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark btn-sm mx-1">update</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm mx-1">delete</button>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">3</th>
                     <td colspan="2">Larry the Bird</td>
                     <td>@twitter</td>
+                    <td>Chandani chowk</td>
+                    <td><button type="button" class="btn btn-outline-dark btn-sm mx-1">update</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm mx-1">delete</button></td>
                 </tr>
             </tbody>
         </table>
