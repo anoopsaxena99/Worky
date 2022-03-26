@@ -4,13 +4,13 @@ from flask import Flask
 from flaskext.mysql import MySQL
 from pymysql import NULL
 import yaml
-from flask import Blueprint,render_template,request,redirect
+from flask import Blueprint,render_template,request,redirect,session
 from datetime import datetime
 from flask_login import login_user, login_required, logout_user, current_user
 
 app=Flask(__name__)
 
-
+app.secret_key = 'your secret key'
 #Database Configuration
 db=yaml.load(open('db.yaml'))
 
@@ -52,15 +52,42 @@ def guide():
 def support():
   return render_template('support.html') 
 
-@app.route('/login')
+@app.route('/login',methods=['GET','POST'])
 def login():
   if request.method == 'POST':
     userdetails=request.form
+    Num=userdetails.get('typeNoX')
+    password=userdetails.get('typePasswordX')
+
+    cur = mysql.get_db().cursor()
+    cur.execute("SELECT * from PERSON where MobileNo='%s' LIMIT 1"%Num)
+    user=cur.fetchone()#fetchall can also be used
+    #print(user[MobileNo])
+    cur.close()
+
+    if user :
+      if password==user[1] :
+        session['loggedin'] = True
+        session['MobileNo'] = user[0]
+        session['Name'] = user[3]
+        return render_template('home.html',user=user)  
+      else:
+        return "password not correct" 
+    else :
+      return "Email Not Exists!!!"  
+
   return render_template('login.html')
+
+
 @app.route('/logout')
+@login_required
 def logout():
-  logout_user()
-  return redirect(url_for('auth.login'))
+  session.pop('loggedin', None)
+  session.pop('MobileNo', None)
+  session.pop('Name', None)
+  return redirect('/login')
+
+
 @app.route('/customer')
 def customer():
   return render_template('customer.html')
@@ -90,10 +117,6 @@ def signup():
     Electrician=request.form.get('four')
     Carpentary=request.form.get('five')
     others=request.form.get('six')
-    
-        #wage related
-    NA1=request.form.get('wage_na')    
-    min_salary=request.form.get('min_salary')
 
     #Cursor of the database
 
