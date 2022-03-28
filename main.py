@@ -36,7 +36,10 @@ mysql=MySQL(app)
 
 @app.route('/')
 def home():
-  return render_template('home.html')
+  if 'user' not in session:
+    return redirect('/login')
+  user = session['user']
+  return render_template('home.html', user=user)
 
 @app.route('/guide')
 def guide():
@@ -64,6 +67,7 @@ def login():
         session['loggedin'] = True
         session['MobileNo'] = user[0]
         session['Name'] = user[3]
+        session['user'] = user
         return render_template('home.html',user=user)  
       else:
         return "password not correct" 
@@ -74,11 +78,12 @@ def login():
 
 
 @app.route('/logout')
-@login_required
+# @login_required
 def logout():
   session.pop('loggedin', None)
   session.pop('MobileNo', None)
   session.pop('Name', None)
+  session.pop('user', None)
   return redirect('/login')
 
 
@@ -127,14 +132,11 @@ def signup():
     cur = mysql.get_db().cursor()
 
     cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB) VALUES(%s,%s,%s,%s,%s)",(Num,password1,Adhar_Id,name,dob))
-    print(int(Mechanic=='on'))
-    print(type(NA))
-    print(type(Labour))
     if NA :
       cur.execute("INSERT INTO CUSTOMER(MobileNo,Rating,NOE) VALUES(%s,%s,%s)",(Num,0,0))
-      cur.execute("SELECT * FROM CUSTOMER WHERE NOE=1")
-      rowi=cur.fetchall()
-      print(rowi)
+    #   #cur.execute("SELECT * FROM CUSTOMER WHERE NOE=1")
+    #   #rowi=cur.fetchall()
+    #   #print(rowi)
     else :
       if others=='on' :
         cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",(Num,1,1,1,1,0,0,MinPrize))  
