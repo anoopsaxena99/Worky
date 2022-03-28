@@ -119,12 +119,28 @@ def signup():
     Electrician=request.form.get('four')
     Carpentary=request.form.get('five')
     others=request.form.get('six')
-
+    
+    # Min prize 
+    MinPrize=500
     #Cursor of the database
 
     cur = mysql.get_db().cursor()
 
     cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB) VALUES(%s,%s,%s,%s,%s)",(Num,password1,Adhar_Id,name,dob))
+    print(int(Mechanic=='on'))
+    print(type(NA))
+    print(type(Labour))
+    if NA :
+      cur.execute("INSERT INTO CUSTOMER(MobileNo,Rating,NOE) VALUES(%s,%s,%s)",(Num,0,0))
+      cur.execute("SELECT * FROM CUSTOMER WHERE NOE=1")
+      rowi=cur.fetchall()
+      print(rowi)
+    else :
+      if others=='on' :
+        cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",(Num,1,1,1,1,0,0,MinPrize))  
+      else :
+        cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",(Num,Labour=='on',Mechanic=='on',Electrician=='on',Carpentary=='on',0,0,MinPrize))  
+
     mysql.get_db().commit()
     cur.close()
     return render_template('customer.html')
