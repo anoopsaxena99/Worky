@@ -73,7 +73,10 @@ def login():
         return "password not correct" 
     else :
       return "Email Not Exists!!!"  
-
+    
+  if 'user' in session:
+    user = session['user']
+    return redirect('/')      ##check
   return render_template('login.html')
 
 
@@ -87,9 +90,39 @@ def logout():
   return redirect('/login')
 
 
-@app.route('/customer')
+@app.route('/customer',methods=['GET','POST'])
 def customer():
-  return render_template('customer.html')
+  if 'user' not in session:
+    return redirect('/login')
+  user = session['user'] 
+  cur = mysql.get_db().cursor() 
+  
+  if request.method == 'POST':
+    print("Hello Guys")
+    #extracting details from customer page 
+    workDetails=request.form
+    Wt=workDetails.get('title')
+    Days=workDetails.get('days')
+    Description=workDetails.get('description')
+    location=workDetails.get('location')#address
+    Wage=workDetails.get('Price')
+    cur.execute("SELECT COUNT(*) FROM Offers")
+    count=cur.fetchone()
+
+    cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'"%user[0])
+    data=cur.fetchall()  
+
+    print(count)
+    cur.execute("INSERT INTO Offers(MobileNo,Days,Description,DailyWage,Address) VALUES(%s,%s,%s,%s,%s)",(user[0],Days,Description,Wage,location))
+    mysql.get_db().commit()
+    cur.close()
+    return render_template('home.html', user=user)
+  
+  cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'"%user[0])
+  data=cur.fetchall()  
+  mysql.get_db().commit()
+  cur.close()
+  return render_template('customers.html',user=user,data=data)
 
 @app.route('/worker')
 def worker():
@@ -142,10 +175,16 @@ def signup():
         cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",(Num,1,1,1,1,0,0,MinPrize))  
       else :
         cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",(Num,Labour=='on',Mechanic=='on',Electrician=='on',Carpentary=='on',0,0,MinPrize))  
-
     mysql.get_db().commit()
     cur.close()
-    return render_template('customer.html')
+    # if NA :
+    #   #return Customer page
+
+    # else :
+    #   #it will be worker page  
+
+
+    # return render_template('customer.html')
     # cur.execute("SELECT * from users where email='%s'"%email1)
     # rows = cur.fetchall()
     # if(rows!=NULL) : 
@@ -159,6 +198,9 @@ def signup():
     # mysql.get_db().commit()
     # cur.close()
     # return('SUCCESS')    
+  if 'user' in session:
+    user = session['user']
+    return redirect('/')  
   return render_template("signup.html")  
 
 if __name__ == '__main__' :
