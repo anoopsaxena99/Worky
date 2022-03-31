@@ -3,7 +3,7 @@ from email.policy import default
 from flask import Flask
 from flaskext.mysql import MySQL
 from pymysql import NULL
-from tables import Description
+#from tables import Description
 import yaml
 from flask import Blueprint, render_template, request, redirect, session
 from datetime import datetime
