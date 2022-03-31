@@ -84,7 +84,6 @@ def login():
 
 
 @app.route('/logout')
-# @login_required
 def logout():
     session.pop('loggedin', None)
     session.pop('MobileNo', None)
@@ -135,9 +134,12 @@ def worker():
     cur.execute(
         "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
     data = cur.fetchall()
+    cur.execute(
+        "SELECT * FROM Offers WHERE offer_id IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
+    requested = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('worker.html', data=data)
+    return render_template('worker.html', data=data, requested=requested)
 
 
 @app.route('/offer')
@@ -153,6 +155,20 @@ def delete(sno):
     mysql.get_db().commit()
     cur.close()
     return redirect("/customer")
+
+
+@app.route('/delete1/<int:sno>')
+def delete1(sno):
+    # todo = Todo.query.filter_by(sno=sno).first()
+    if 'user' not in session:
+        return redirect('/login')
+    user = session['user']
+    cur = mysql.get_db().cursor()
+    cur.execute(
+        "DELETE FROM Request_Table WHERE offer_id =%s AND UserMobileNo=%s ", (sno, user[0]))
+    mysql.get_db().commit()
+    cur.close()
+    return redirect("/worker")
 
 
 @app.route('/req/<int:sno>')
@@ -186,6 +202,10 @@ def update(sno):
     mysql.get_db().commit()
     cur.close()
     return render_template('update.html', data=data)
+
+
+# @app.route('/whoreq/<int:sno>')
+# def whoreq(sno):
 
 
 @app.route('/signup', methods=['GET', 'POST'])

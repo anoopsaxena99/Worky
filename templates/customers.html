@@ -135,7 +135,12 @@
           {% for row in data : %}
           <tr>
             <th scope="row">{{loop.index}}</th>
-            <td>{{row[3]}}</td>
+            <td><a
+              href="/whoreq/{{row[1]}}"
+              type="button"
+            >
+            {{row[3]}}
+            </button></td>
             <td>{{row[2]}}</td>
             <td>{{row[4]}}</td>
             <td>{{row[5]}}</td>
