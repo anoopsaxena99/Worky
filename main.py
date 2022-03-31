@@ -204,8 +204,14 @@ def update(sno):
     return render_template('update.html', data=data)
 
 
-# @app.route('/whoreq/<int:sno>')
-# def whoreq(sno):
+@app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
+def whoreq(sno):
+    cur = mysql.get_db().cursor()
+    cur.execute("WITH A1 as (SELECT UserMobileNo FROM Request_Table WHERE offer_id ='%s') SELECT A1.UserMobileNo , PERSON.Name FROM A1 INNER JOIN PERSON ON A1.UserMobileNo=PERSON.MobileNo" % sno)
+    data = cur.fetchall()
+    mysql.get_db().commit()
+    cur.close()
+    return render_template('whoreq.html', data=data)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
