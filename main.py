@@ -115,7 +115,7 @@ def customer():
                     (user[0], Days, Description, Wage, location))
         mysql.get_db().commit()
         cur.close()
-        return render_template('home.html', user=user)
+        return render_template('customers.html', user=user)
 
     cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
     data = cur.fetchall()
@@ -149,7 +149,6 @@ def offer():
 
 @app.route('/delete/<int:sno>')
 def delete(sno):
-    # todo = Todo.query.filter_by(sno=sno).first()
     cur = mysql.get_db().cursor()
     cur.execute("DELETE FROM Offers WHERE offer_id ='%s'" % sno)
     mysql.get_db().commit()
@@ -159,7 +158,6 @@ def delete(sno):
 
 @app.route('/delete1/<int:sno>')
 def delete1(sno):
-    # todo = Todo.query.filter_by(sno=sno).first()
     if 'user' not in session:
         return redirect('/login')
     user = session['user']
@@ -171,6 +169,23 @@ def delete1(sno):
     return redirect("/worker")
 
 
+# link for reject option in whoreq page where customer
+# reject worker request.
+@app.route('/reject/<int:sno>')
+def reject(sno):
+    if 'user' not in session:
+        return redirect('/login')
+    user = session['user']
+    cur = mysql.get_db().cursor()
+    cur.execute(
+        "DELETE FROM Request_Table WHERE Offer_id =%s AND UserMobileNo=%s ", (sno, user[0]))
+    mysql.get_db().commit()
+    cur.close()
+    return redirect("/whoreq")
+
+
+
+#worker request from given work list 
 @app.route('/req/<int:sno>')
 def req(sno):
     if 'user' not in session:
@@ -262,26 +277,6 @@ def signup():
                             (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
         mysql.get_db().commit()
         cur.close()
-        # if NA :
-        #   #return Customer page
-
-        # else :
-        #   #it will be worker page
-
-        # return render_template('customer.html')
-        # cur.execute("SELECT * from users where email='%s'"%email1)
-        # rows = cur.fetchall()
-        # if(rows!=NULL) :
-        #   x=0
-        #   for row in rows:
-        #     print(row[0])
-        #     x=x+1
-        #   print("{0} no of entries already there".format(x))
-        #   return("{0} no of entries already there".format(x))
-        # cur.execute("INSERT INTO users(name,email) VALUES(%s,%s)",(name ,email))
-        # mysql.get_db().commit()
-        # cur.close()
-        # return('SUCCESS')
     if 'user' in session:
         user = session['user']
         return redirect('/')

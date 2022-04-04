@@ -1,113 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
 
     <title>customer</title>
     <style>
-      h2 {
-        /* color: rebeccapurple; */
-        text-align: center;
-      }
+        h2 {
+            /* color: rebeccapurple; */
+            text-align: center;
+        }
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">Worky</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+        <a class="navbar-brand" href="/">Worky</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="/"
-              >Home <span class="sr-only">(current)</span></a
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a
             >
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/login">Log-In</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/signup">Sign-Up</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/signup">Sign-Up</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               More
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="/worker">worker</a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="/support">Our Support</a>
-            </div>
-          </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input
-            class="form-control mr-sm-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/worker">worker</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/support">Our Support</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
             Search
           </button>
-        </form>
-      </div>
+            </form>
+        </div>
     </nav>
 
     <div class="container my-4">
-      <h2>Interested Workers</h2>
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th scope="col">SNo</th>
-            <th scope="col">Name</th>
-            <th scope="col">Mobile Number</th>
-          </tr>
-        </thead>
-        {% for row in data :%}
-        <tbody>
-          <tr>
-            <th scope="row">{{loop.index}}</th>
-            <td>{{row[1]}}</td>
-            <td>{{row[0]}}</td>
-            <td>
-              <button type="button" class="btn btn-outline-dark btn-sm mx-1">
+        <h2>Interested Workers</h2>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">SNo</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Mobile Number</th>
+                </tr>
+            </thead>
+            {% for row in data :%}
+            <tbody>
+                <tr>
+                    <th scope="row">{{loop.index}}</th>
+                    <td>{{row[1]}}</td>
+                    <td>{{row[0]}}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-dark btn-sm mx-1">
                 Accept
               </button>
-              <button type="button" class="btn btn-outline-dark btn-sm mx-1">
-                reject
+                        <a href="/reject/{{r/{{row[0]}}" type="button" class="btn btn-outline-dark btn-sm mx-1">
+                reje
               </button>
             </td>
           </tr>
