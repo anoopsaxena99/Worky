@@ -115,7 +115,7 @@ def customer():
                     (user[0], Days, Description, Wage, location))
         mysql.get_db().commit()
         cur.close()
-        return render_template('home.html', user=user)
+        return redirect('/customer')
 
     cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
     data = cur.fetchall()
@@ -131,6 +131,8 @@ def worker():
     user = session['user']
     cur = mysql.get_db().cursor()
     # cur.execute("SELECT Offer_id FROM Request_Table WHERE MobileNo='%s'"%user[0])
+    cur.execute(
+        "SELECT * FROM Accepted_Request WITH A1 as (SELECT * FROM Request_Table WHERE offer_id ='%s')")
     cur.execute(
         "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
     data = cur.fetchall()
@@ -157,7 +159,7 @@ def delete(sno):
     return redirect("/customer")
 
 
-@app.route('/delete1/<int:sno>')
+@app.route('/delete1/<int:sno>')  # for deleting requests by Workers
 def delete1(sno):
     # todo = Todo.query.filter_by(sno=sno).first()
     if 'user' not in session:
@@ -171,7 +173,7 @@ def delete1(sno):
     return redirect("/worker")
 
 
-@app.route('/req/<int:sno>')
+@app.route('/req/<int:sno>')  # for requesting work by worker on sno worker id
 def req(sno):
     if 'user' not in session:
         return redirect('/login')
@@ -204,6 +206,19 @@ def update(sno):
     return render_template('update.html', data=data)
 
 
+@app.route('/accept/<int:sno>/<string:workerNo>')
+def accept(sno=None, workerNo=None):
+    if 'user' not in session:
+        return redirect('/login')
+    user = session['user']
+    cur = mysql.get_db().cursor()
+    cur.execute("INSERT INTO Accepted_Request(WorkerMobile,CustomerMobile,Offer_id) VALUES(%s,%s,%s)",
+                (workerNo, user[0], sno))
+    mysql.get_db().commit()
+    cur.close()
+    return("Success")
+
+
 @app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
 def whoreq(sno):
     cur = mysql.get_db().cursor()
@@ -211,7 +226,7 @@ def whoreq(sno):
     data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('whoreq.html', data=data)
+    return render_template('whoreq.html', data=data, sno=sno)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
