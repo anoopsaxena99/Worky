@@ -132,17 +132,19 @@ def worker():
     user = session['user']
     cur = mysql.get_db().cursor()
     # cur.execute("SELECT Offer_id FROM Request_Table WHERE MobileNo='%s'"%user[0])
-    cur.execute(
-        "SELECT * FROM Accepted_Request WITH A1 as (SELECT * FROM Request_Table WHERE offer_id ='%s')")
+    # cur.execute(
+    #     "SELECT * FROM Accepted_Request WITH A1 as (SELECT * FROM Request_Table WHERE offer_id ='%s')")
     cur.execute(
         "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
     data = cur.fetchall()
     cur.execute(
         "SELECT * FROM Offers WHERE offer_id IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
     requested = cur.fetchall()
+    cur.execute("WITH A1 as (SELECT * FROM Accepted_Request where WorkerMobile='08445635554') SELECT * FROM A1 INNER JOIN Offers ON A1.Offer_id=Offers.Offer_id")
+    accept_offer = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('worker.html', data=data, requested=requested)
+    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer)
 
 
 @app.route('/offer')
@@ -174,22 +176,21 @@ def delete1(sno):
 
 # link for reject option in whoreq page where customer
 # reject worker request.
-@app.route('/reject/<int:sno>')
-def reject(sno):
+@app.route('/reject/<int:sno>/<string:workerNo>')
+def reject(sno=None, workerNo=None):
     if 'user' not in session:
         return redirect('/login')
     user = session['user']
     cur = mysql.get_db().cursor()
     cur.execute(
-        "DELETE FROM Request_Table WHERE Offer_id =%s AND UserMobileNo=%s ", (sno, user[0]))
+        "DELETE FROM Request_Table WHERE Offer_id =%s AND UserMobileNo=%s", (sno, workerNo))
     mysql.get_db().commit()
     cur.close()
-    return redirect("/whoreq")
+    s = "/whoreq/%s" % sno
+    return redirect(s)
 
 
-
-#worker request from given work list 
-@app.route('/req/<int:sno>')
+# worker request from given work list
 @app.route('/req/<int:sno>')  # for requesting work by worker on sno worker id
 def req(sno):
     if 'user' not in session:
@@ -223,6 +224,67 @@ def update(sno):
     return render_template('update.html', data=data)
 
 
+@app.route('/cusCompleted/<int:sno>', methods=['GET', 'POST'])
+def cusCompleted(sno=None):
+    if 'user' not in session:
+        return redirect('/login')
+    user = session['user']
+    cur = mysql.get_db().cursor()
+    if request.method == 'POST':
+        crating = request.form['crating']
+        cur.execute("SELECT * FROM WorkRecord where offer_id='%s'" % sno)
+        data = cur.fetchone()
+        if data:
+            cur.execute(
+                "UPDATE WorkRecord SET CRating=%s where offer_id=%s", (crating, sno))
+        else:
+            cur.execute(
+                "SELECT * FROM Accepted_Request where offer_id=%s AND CustomerMobile=%s", (sno, user[0]))
+            wor = cur.fetchone()
+            cur.execute(
+                "INSERT INTO WorkRecord(offer_id,WorkerMob,CRating) VALUES(%s,%s,%s)", (sno, wor[0], crating))
+            mysql.get_db().commit()
+            cur.close()
+            return("success")
+        mysql.get_db().commit()
+        cur.close()
+        return redirect("/customer")
+    cur.execute("SELECT * FROM Offers where offer_id='%s'" % sno)
+    data = cur.fetchone()
+    mysql.get_db().commit()
+    cur.close()
+    return render_template("cusCompleted.html", data=data)
+
+
+@app.route('/worCompleted/<int:sno>', methods=['GET', 'POST'])
+def worCompleted(sno=None):
+    if 'user' not in session:
+        return redirect('/login')
+    user = session['user']
+    cur = mysql.get_db().cursor()
+    if request.method == 'POST':
+        wrating = request.form['wrating']
+        cur.execute("SELECT * FROM WorkRecord where offer_id='%s'" % sno)
+        data = cur.fetchone()
+        if data:
+            cur.execute(
+                "UPDATE WorkRecord SET WRating=%s where offer_id=%s", (wrating, sno))
+        else:
+            cur.execute(
+                "INSERT INTO WorkRecord(offer_id,WorkerMob,WRating) VALUES(%s,%s,%s)", (sno, user[0], wrating))
+            mysql.get_db().commit()
+            cur.close()
+            return("success")
+        mysql.get_db().commit()
+        cur.close()
+        return redirect("/customer")
+    cur.execute("SELECT * FROM Offers where offer_id='%s'" % sno)
+    data = cur.fetchone()
+    mysql.get_db().commit()
+    cur.close()
+    return render_template("worCompleted.html", data=data)
+
+
 @app.route('/accept/<int:sno>/<string:workerNo>')
 def accept(sno=None, workerNo=None):
     if 'user' not in session:
@@ -231,6 +293,7 @@ def accept(sno=None, workerNo=None):
     cur = mysql.get_db().cursor()
     cur.execute("INSERT INTO Accepted_Request(WorkerMobile,CustomerMobile,Offer_id) VALUES(%s,%s,%s)",
                 (workerNo, user[0], sno))
+    # cur.execute("DELETE FROM Requested_")
     mysql.get_db().commit()
     cur.close()
     return("Success")
@@ -238,12 +301,19 @@ def accept(sno=None, workerNo=None):
 
 @app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
 def whoreq(sno):
+    if 'user' not in session:
+        return redirect('/login')
+    user = session['user']
     cur = mysql.get_db().cursor()
-    cur.execute("WITH A1 as (SELECT UserMobileNo FROM Request_Table WHERE offer_id ='%s') SELECT A1.UserMobileNo , PERSON.Name FROM A1 INNER JOIN PERSON ON A1.UserMobileNo=PERSON.MobileNo" % sno)
+    cur.execute(
+        "WITH A1 as (SELECT UserMobileNo FROM Request_Table WHERE offer_id ='%s') SELECT A1.UserMobileNo , PERSON.Name FROM A1 INNER JOIN PERSON ON A1.UserMobileNo=PERSON.MobileNo" % sno)
     data = cur.fetchall()
+    cur.execute(
+        "WITH A1 as (SELECT * FROM Accepted_Request where CustomerMobile=%s) SELECT PERSON.name,A1.WorkerMobile FROM A1 INNER JOIN PERSON ON A1.WorkerMobile=PERSON.MobileNo where offer_id=%s ;", (user[0], sno))
+    accept_data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('whoreq.html', data=data, sno=sno)
+    return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
