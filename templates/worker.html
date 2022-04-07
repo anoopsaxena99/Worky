@@ -76,7 +76,7 @@
                     <td>{{row[7]}}</td>
                     <td>{{row[8]}}</td>
                     <td>
-                        <a type="button" href="/worCompleted/{{row[4]}}" class="btn btn-outline-dark btn-sm">
+                        <a type="button" href="/worCompleted/{{row[4]}}" class="btn btn-outline-dark btn-sm" style="background-color: #90c790;">
                 WorkCompleted          
               </button>
             </td>
@@ -105,7 +105,8 @@
                     <td>{{row[4]}}</td>
                     <td>{{row[5]}}</td>
                     <td>
-                        <a type="button" href="/delete1/{{row[1]}}" class="btn btn-outline-dark btn-sm">
+                        <a type="button" href="/delete1/{{row[1]}}" class="btn btn-outline-dark btn-sm"
+                        style="background-color: #cbaca1;">
                 delete
               </button>
             </td>
@@ -113,6 +114,7 @@
         </tbody>
         {% endfor %}{% endif %}
       </table>
+      {%if data :%}
       <h2>Today's Offers</h2>
       <table class="table table-striped table-hover">
         <thead>
@@ -133,7 +135,8 @@
             <td>{{row[4]}}</td>
             <td>{{row[5]}}</td>
             <td>
-              <a type="button" href="/req/{{row[1]}}" class="btn btn-outline-dark btn-sm">
+              <a type="button" href="/req/{{row[1]}}" class="btn btn-outline-dark btn-sm"
+              style="background-color: #93bbc6;">
                 request
               </button>
             </td>
@@ -141,6 +144,7 @@
         </tbody>
         {% endfor %}
       </table>
+      {%endif%}
     </div>
 
     <!-- Optional JavaScript -->

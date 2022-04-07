@@ -115,7 +115,7 @@ def customer():
                     (user[0], Days, Description, Wage, location))
         mysql.get_db().commit()
         cur.close()
-        return render_template('customers.html', user=user)
+        # return render_template('customers.html', user=user)
         return redirect('/customer')
 
     cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
@@ -231,7 +231,23 @@ def cusCompleted(sno=None):
     user = session['user']
     cur = mysql.get_db().cursor()
     if request.method == 'POST':
-        crating = request.form['crating']
+        rating1 = request.form.get('rating1')
+        rating2 = request.form.get('rating2')
+        rating3 = request.form.get('rating3')
+        rating4 = request.form.get('rating4')
+        rating5 = request.form.get('rating5')
+        crating = 0
+        if rating1:
+            crating = 1
+        if rating2:
+            crating = 2
+        if rating3:
+            crating = 3
+        if rating4:
+            crating = 4
+        if rating5:
+            crating = 5
+        print(crating)
         cur.execute("SELECT * FROM WorkRecord where offer_id='%s'" % sno)
         data = cur.fetchone()
         if data:
@@ -248,7 +264,8 @@ def cusCompleted(sno=None):
             return("success")
         mysql.get_db().commit()
         cur.close()
-        return redirect("/customer")
+        st = "/whoreq/{}".format(sno)
+        return redirect(st)
     cur.execute("SELECT * FROM Offers where offer_id='%s'" % sno)
     data = cur.fetchone()
     mysql.get_db().commit()
@@ -263,7 +280,22 @@ def worCompleted(sno=None):
     user = session['user']
     cur = mysql.get_db().cursor()
     if request.method == 'POST':
-        wrating = request.form['wrating']
+        rating1 = request.form.get('rating1')
+        rating2 = request.form.get('rating2')
+        rating3 = request.form.get('rating3')
+        rating4 = request.form.get('rating4')
+        rating5 = request.form.get('rating5')
+        wrating = 0
+        if rating1:
+            wrating = 1
+        if rating2:
+            wrating = 2
+        if rating3:
+            wrating = 3
+        if rating4:
+            wrating = 4
+        if rating5:
+            wrating = 5
         cur.execute("SELECT * FROM WorkRecord where offer_id='%s'" % sno)
         data = cur.fetchone()
         if data:
@@ -272,12 +304,9 @@ def worCompleted(sno=None):
         else:
             cur.execute(
                 "INSERT INTO WorkRecord(offer_id,WorkerMob,WRating) VALUES(%s,%s,%s)", (sno, user[0], wrating))
-            mysql.get_db().commit()
-            cur.close()
-            return("success")
         mysql.get_db().commit()
         cur.close()
-        return redirect("/customer")
+        return redirect("/worker")
     cur.execute("SELECT * FROM Offers where offer_id='%s'" % sno)
     data = cur.fetchone()
     mysql.get_db().commit()
@@ -296,7 +325,8 @@ def accept(sno=None, workerNo=None):
     # cur.execute("DELETE FROM Requested_")
     mysql.get_db().commit()
     cur.close()
-    return("Success")
+    s = "/whoreq/{}".format(sno)
+    return redirect(s)
 
 
 @app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
