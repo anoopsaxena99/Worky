@@ -110,10 +110,16 @@ def customer():
         Wage = workDetails.get('Price')
         cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
         data = cur.fetchall()
+        now = datetime.now()
+        Td = now.strftime('%Y-%m-%d %H:%M:%S')
+        cur.execute("INSERT INTO allOffers(MobileNo,Days,Description,DailyWage,Address,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
+                    (user[0], Days, Description, Wage, location, now))
 
-        cur.execute("INSERT INTO Offers(MobileNo,Days,Description,DailyWage,Address) VALUES(%s,%s,%s,%s,%s)",
-                    (user[0], Days, Description, Wage, location))
         mysql.get_db().commit()
+        cur.execute("SELECT * FROM allOffers WHERE DateTime='%s'", (now))
+        Of = cur.fetchone()
+        cur.execute(
+            "INSERT INTO CurrentOffers(offer_id,MobileNo) VALUES(%s,%s)", (Of[1], user[0]))
         cur.close()
         # return render_template('customers.html', user=user)
         return redirect('/customer')
@@ -135,12 +141,13 @@ def worker():
     # cur.execute(
     #     "SELECT * FROM Accepted_Request WITH A1 as (SELECT * FROM Request_Table WHERE offer_id ='%s')")
     cur.execute(
-        "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
+        "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='{}') AND offer_id NOT IN (SELECT Offer_id FROM Offers WHERE MobileNo='{}')".format(user[0], user[0]))
     data = cur.fetchall()
     cur.execute(
         "SELECT * FROM Offers WHERE offer_id IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
     requested = cur.fetchall()
-    cur.execute("WITH A1 as (SELECT * FROM Accepted_Request where WorkerMobile='08445635554') SELECT * FROM A1 INNER JOIN Offers ON A1.Offer_id=Offers.Offer_id")
+    cur.execute(
+        "WITH A1 as (SELECT * FROM Accepted_Request where WorkerMobile='%s') SELECT * FROM A1 INNER JOIN Offers ON A1.Offer_id=Offers.Offer_id" % user[0])
     accept_offer = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
@@ -348,15 +355,17 @@ def whoreq(sno):
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if 'user' in session:
+        user = session['user']
+        return redirect('/')
     if request.method == 'POST':
-
-        userdetails = request.form
-
         # data from sign up page
+        userdetails = request.form
 
         # personal stuff
         Num = userdetails.get('typeNumX')
         Adhar_Id = userdetails.get('adhar')
+
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
         name = userdetails.get('name')
@@ -370,34 +379,28 @@ def signup():
         Electrician = request.form.get('four')
         Carpentary = request.form.get('five')
         others = request.form.get('six')
-
+        now = datetime.now()
+        now = now.strftime('%Y-%m-%d %H:%M:%S')
         # Min prize
-        MinPrize = 500
+        MinPrize = request.form.get('MinWage')
         # Cursor of the database
 
         cur = mysql.get_db().cursor()
 
-        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB) VALUES(%s,%s,%s,%s,%s)",
-                    (Num, password1, Adhar_Id, name, dob))
-        if NA:
-            cur.execute(
-                "INSERT INTO CUSTOMER(MobileNo,Rating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
-        #   #cur.execute("SELECT * FROM CUSTOMER WHERE NOE=1")
-        #   #rowi=cur.fetchall()
-        #   #print(rowi)
+        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
+                    (Num, password1, Adhar_Id, name, dob, now))
+        cur.execute(
+            "INSERT INTO CUSTOMER(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
+
+        if others == 'on':
+            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (Num, 1, 1, 1, 1, 0, 0, MinPrize))
         else:
-            if others == 'on':
-                cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                            (Num, 1, 1, 1, 1, 0, 0, MinPrize))
-            else:
-                cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                            (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
+            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
         mysql.get_db().commit()
         cur.close()
-    if 'user' in session:
-        user = session['user']
-        return redirect('/')
-    return render_template("signup.html")
+    return redirect("/signup")
 
 
 if __name__ == '__main__':
