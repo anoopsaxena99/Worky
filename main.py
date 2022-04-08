@@ -163,6 +163,8 @@ def customer():
         Description = workDetails.get('description')
         location = workDetails.get('location')  # address
         Wage = workDetails.get('Price')
+
+        #SQL query
         cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
         data = cur.fetchall()
         now = datetime.now()
