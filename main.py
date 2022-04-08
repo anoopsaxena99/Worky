@@ -52,6 +52,56 @@ def support():
     return render_template('support.html')
 
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if 'user' in session:
+        user = session['user']
+        return redirect('/')
+    if request.method == 'POST':
+        # data from sign up page
+        userdetails = request.form
+
+        # personal stuff
+        Num = userdetails.get('typeNumX')
+        Adhar_Id = userdetails.get('adhar')
+
+        password1 = request.form.get('password1')
+        password2 = request.form.get('password2')
+        name = userdetails.get('name')
+        dob = request.form.get('dob')
+        Adress = request.form.get('adress')
+
+        # skills details
+        NA = request.form.get('one')
+        Labour = request.form.get('two')
+        Mechanic = request.form.get('three')
+        Electrician = request.form.get('four')
+        Carpentary = request.form.get('five')
+        others = request.form.get('six')
+        now = datetime.now()
+        now = now.strftime('%Y-%m-%d %H:%M:%S')
+        # Min prize
+        MinPrize = request.form.get('MinWage')
+        # Cursor of the database
+
+        cur = mysql.get_db().cursor()
+
+        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
+                    (Num, password1, Adhar_Id, name, dob, now))
+        cur.execute(
+            "INSERT INTO CUSTOMER(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
+
+        if others == 'on':
+            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (Num, 1, 1, 1, 1, 0, 0, MinPrize))
+        else:
+            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
+        mysql.get_db().commit()
+        cur.close()
+    return redirect("/login")
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -351,56 +401,6 @@ def whoreq(sno):
     mysql.get_db().commit()
     cur.close()
     return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data)
-
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if 'user' in session:
-        user = session['user']
-        return redirect('/')
-    if request.method == 'POST':
-        # data from sign up page
-        userdetails = request.form
-
-        # personal stuff
-        Num = userdetails.get('typeNumX')
-        Adhar_Id = userdetails.get('adhar')
-
-        password1 = request.form.get('password1')
-        password2 = request.form.get('password2')
-        name = userdetails.get('name')
-        dob = request.form.get('dob')
-        Adress = request.form.get('adress')
-
-        # skills details
-        NA = request.form.get('one')
-        Labour = request.form.get('two')
-        Mechanic = request.form.get('three')
-        Electrician = request.form.get('four')
-        Carpentary = request.form.get('five')
-        others = request.form.get('six')
-        now = datetime.now()
-        now = now.strftime('%Y-%m-%d %H:%M:%S')
-        # Min prize
-        MinPrize = request.form.get('MinWage')
-        # Cursor of the database
-
-        cur = mysql.get_db().cursor()
-
-        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
-                    (Num, password1, Adhar_Id, name, dob, now))
-        cur.execute(
-            "INSERT INTO CUSTOMER(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
-
-        if others == 'on':
-            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (Num, 1, 1, 1, 1, 0, 0, MinPrize))
-        else:
-            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
-        mysql.get_db().commit()
-        cur.close()
-    return redirect("/signup")
 
 
 if __name__ == '__main__':
