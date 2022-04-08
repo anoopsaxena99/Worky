@@ -17,7 +17,86 @@
     </style>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+
+    <style>
+        .selectBox {
+            position: relative;
+        }
+        
+        .selectBox select {
+            width: 30%;
+            padding: 10px;
+            color: gray;
+            font-size: 1.2em;
+            border-radius: 5px;
+        }
+        
+        .overSelect {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+        
+        #checkboxes {
+            display: none;
+            border: 1px #dadada solid;
+            text-align: left;
+        }
+        
+        #checkboxes label {
+            display: block;
+        }
+        
+        #checkboxes label:hover {
+            background-color: #5c5e5f;
+        }
+        
+        .mul-select {
+            width: 100%;
+        }
+        
+        label {
+            display: block;
+        }
+        
+        .floatBlock {
+            margin: 0 1.81em 0 0;
+        }
+        
+        .labelish {
+            margin: 0;
+        }
+        
+        .paymentOptions {
+            border: none;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            break-before: always;
+            margin: 0 0 3em 0;
+        }
+        
+        #purchaseOrder {
+            margin: 0 0 2em 0;
+        }
+    </style>
+    <script>
+        var expanded = false;
+
+        function showCheckboxes() {
+            var checkboxes = document.getElementById("checkboxes");
+            if (!expanded) {
+                checkboxes.style.display = "block";
+                expanded = true;
+            } else {
+                checkboxes.style.display = "none";
+                expanded = false;
+            }
+        }
+    </script>
+
 </head>
 
 <body>
@@ -48,31 +127,53 @@
                     </div>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-            Search
-          </button>
-            </form>
+
         </div>
     </nav>
 
     <div class="container my-4">
         <form method="POST">
-            <input type="text" id="title" name="title" placeholder="title of work" />
+
+            <input type="text" id="description" name="description" placeholder="Work description" />
 
             <input type="number" id="days" name="days" placeholder="days" />
 
-            <input type="text" id="description" name="description" placeholder="description" />
-
             <input type="text" id="location" name="location" placeholder="location of Work" />
 
-            <input type="number" id="Price" name="Price" placeholder="Daily Wage" />
+            <input type="number" id="Price" name="Price" placeholder="Daily Wage" /><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="labour" id="inlineCheckbox1" value="option1" />
+                <label class="form-check-label" for="inlineCheckbox1">Labour</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="mechanic" id="inlineCheckbox2" value="option2" />
+                <label class="form-check-label" for="inlineCheckbox2">Mechanic</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="electrician" id="inlineCheckbox3" value="option3" />
+                <label class="form-check-label" for="inlineCheckbox3">Electrician</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="carpentry" id="inlineCheckbox4" value="option4" />
+                <label class="form-check-label" for="inlineCheckbox3">Carpentry</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="others" id="inlineCheckbox5" value="option5" />
+                <label class="form-check-label" for="inlineCheckbox3">Others</label>
+            </div>
             <button type="submit" class="btn btn-outline-dark btn-sm mx-1">
+                                                         
           Post
         </button>
         </form>
     </div>
+
+
+
+
     {%if data: %}
     <div class="container my-4">
         <h2>{{user[3]}} work list</h2>
