@@ -115,9 +115,11 @@ def login():
         password = userdetails.get('typePasswordX')
 
         cur = mysql.get_db().cursor()
-        cur.execute("SELECT * from PERSON where MobileNo='%s'" % Num)
+        cur.execute("SELECT * FROM PERSON where MobileNo='%s'" % Num)
         user = cur.fetchone()  # fetchall can also be used
         # print(user[MobileNo])
+        cur.execute("SELECT * FROM Worker where WMobileNo='%s'" % Num)
+        userWorker = cur.fetchone()
         cur.close()
 
         if user:
@@ -126,6 +128,7 @@ def login():
                 session['MobileNo'] = user[0]
                 session['Name'] = user[3]
                 session['user'] = user
+                session['userWorker'] = userWorker
                 return render_template('home.html', user=user)
             else:
                 return "password not correct"
@@ -190,19 +193,20 @@ def worker():
     if 'user' not in session:
         return redirect('/login')
     user = session['user']
+    skill = session['userWorker']
     cur = mysql.get_db().cursor()
     cur.execute(
-        "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='{}') AND offer_id NOT IN (SELECT Offer_id FROM Offers WHERE MobileNo='{}')".format(user[0], user[0]))
-    data = cur.fetchall()
+        "SELECT * FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}')".format(user[0], user[0], user[0], user[0]))
+    data = cur.fetchall()  # need to specify request according to their interest
     cur.execute(
-        "SELECT * FROM Offers WHERE offer_id IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
+        "SELECT * FROM Request_Table AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}'".format(user[0]))
     requested = cur.fetchall()
     cur.execute(
-        "WITH A1 as (SELECT * FROM Accepted_Request where WorkerMobile='%s') SELECT * FROM A1 INNER JOIN Offers ON A1.Offer_id=Offers.Offer_id" % user[0])
+        "SELECT * FROM AcceptedRequest AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}'".format(user[0]))
     accept_offer = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer)
+    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer, skill=skill)
 
 
 @app.route('/offer')
