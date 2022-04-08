@@ -41,6 +41,7 @@ def home():
     user = session['user']
     return render_template('home.html', user=user)
 
+
 @app.route('/home1')
 def home1():
     return render_template('home1.html')
@@ -56,7 +57,6 @@ def support():
     return render_template('support.html')
 
 
-<<<<<<< HEAD
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if 'user' in session:
@@ -105,9 +105,6 @@ def signup():
         mysql.get_db().commit()
         cur.close()
     return redirect("/login")
-=======
-
->>>>>>> b414e654471030cc85ce6a65d1a058d4d9d04cc6
 
 
 @app.route('/login', methods=['GET', 'POST'])
