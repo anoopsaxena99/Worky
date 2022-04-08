@@ -1,136 +1,151 @@
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
 
     <title>update</title>
     <style>
-      h1 {
-        color: rebeccapurple;
-        text-align: center;
-      }
+        h1 {
+            color: rebeccapurple;
+            text-align: center;
+        }
     </style>
     <style>
-      .rating {
-        float: left;
-      }
-
-      /* :not(:checked) is a filter, so that browsers that don’t support :checked don’t 
+        .rating {
+            float: left;
+        }
+        /* :not(:checked) is a filter, so that browsers that don’t support :checked don’t 
  follow these rules. Every browser that supports :checked also supports :not(), so
  it doesn’t make the test unnecessarily selective */
-      .rating:not(:checked) > input {
-        position: absolute;
-        top: -9999px;
-        clip: rect(0, 0, 0, 0);
-      }
-
-      .rating:not(:checked) > label {
-        float: right;
-        width: 1em;
-        padding: 0 0.1em;
-        overflow: hidden;
-        white-space: nowrap;
-        cursor: pointer;
-        font-size: 200%;
-        line-height: 1.2;
-        color: #ddd;
-        text-shadow: 1px 1px #bbb, 2px 2px #666,
-          0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
-      }
-
-      .rating:not(:checked) > label:before {
-        content: "★ ";
-      }
-
-      .rating > input:checked ~ label {
-        color: #f70;
-        text-shadow: 1px 1px #c60, 2px 2px #940,
-          0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
-      }
-
-      .rating:not(:checked) > label:hover,
-      .rating:not(:checked) > label:hover ~ label {
-        color: gold;
-        text-shadow: 1px 1px goldenrod, 2px 2px #b57340,
-          0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
-      }
-
-      .rating > input:checked + label:hover,
-      .rating > input:checked + label:hover ~ label,
-      .rating > input:checked ~ label:hover,
-      .rating > input:checked ~ label:hover ~ label,
-      .rating > label:hover ~ input:checked ~ label {
-        color: #ea0;
-        text-shadow: 1px 1px goldenrod, 2px 2px #b57340,
-          0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
-      }
-
-      .rating > label:active {
-        position: relative;
-        top: 2px;
-        left: 2px;
-      }
-
-      /* end of Lea's code */
-
-      /*
+        
+        .rating:not(:checked)>input {
+            position: absolute;
+            top: -9999px;
+            clip: rect(0, 0, 0, 0);
+        }
+        
+        .rating:not(:checked)>label {
+            float: right;
+            width: 1em;
+            padding: 0 0.1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 200%;
+            line-height: 1.2;
+            color: #ddd;
+            text-shadow: 1px 1px #bbb, 2px 2px #666, 0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
+        }
+        
+        .rating:not(:checked)>label:before {
+            content: "★ ";
+        }
+        
+        .rating>input:checked~label {
+            color: #f70;
+            text-shadow: 1px 1px #c60, 2px 2px #940, 0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
+        }
+        
+        .rating:not(:checked)>label:hover,
+        .rating:not(:checked)>label:hover~label {
+            color: gold;
+            text-shadow: 1px 1px goldenrod, 2px 2px #b57340, 0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
+        }
+        
+        .rating>input:checked+label:hover,
+        .rating>input:checked+label:hover~label,
+        .rating>input:checked~label:hover,
+        .rating>input:checked~label:hover~label,
+        .rating>label:hover~input:checked~label {
+            color: #ea0;
+            text-shadow: 1px 1px goldenrod, 2px 2px #b57340, 0.1em 0.1em 0.2em rgba(0, 0, 0, 0.5);
+        }
+        
+        .rating>label:active {
+            position: relative;
+            top: 2px;
+            left: 2px;
+        }
+        /* end of Lea's code */
+        /*
 * Clearfix from html5 boilerplate
 */
-
-      .clearfix:before,
-      .clearfix:after {
-        content: " "; /* 1 */
-        display: table; /* 2 */
-      }
-
-      .clearfix:after {
-        clear: both;
-      }
-
-      /*
+        
+        .clearfix:before,
+        .clearfix:after {
+            content: " ";
+            /* 1 */
+            display: table;
+            /* 2 */
+        }
+        
+        .clearfix:after {
+            clear: both;
+        }
+        /*
 * For IE 6/7 only
 * Include this rule to trigger hasLayout and contain floats.
 */
-
-      .clearfix {
-        *zoom: 1;
-      }
-
-      /* my stuff */
-      #status,
-      button {
-        margin: 20px 0;
-      }
+        
+        .clearfix {
+            *zoom: 1;
+        }
+        /* my stuff */
+        
+        #status,
+        button {
+            margin: 20px 0;
+        }
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-  </head>
-  <body>
-    <br />
-    <br />
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Worky</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a
+        >
+      </li>
+     
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">Log-Out</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          More
+        </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/customer">customer</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/worker">worker</a>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
     <div class="container my-4">
-      <h2>{% print("Worker Rating for ")%}{{data[3]}}</h2>
-      <div id="status"></div>
-      <form method="POST" id="ratingForm">
-        <fieldset class="rating">
-          <legend>Please rate:</legend>
-          <input type="radio" id="star5" name="rating5" value="5" /><label
-            for="star5"
-            title="Rocks!"
-            >5 stars</label
+        <h2>{% print("Worker Rating for ")%}{{data[3]}}</h2>
+        <div id="status"></div>
+        <form method="POST" id="ratingForm">
+            <fieldset class="rating">
+                <legend>Please rate:</legend>
+                <input type="radio" id="star5" name="rating5" value="5" /><label for="star5" title="Rocks!">5 stars</label
           >
           <input type="radio" id="star4" name="rating4" value="4" /><label
             for="star4"
