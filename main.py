@@ -104,7 +104,7 @@ def signup():
                         (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
         mysql.get_db().commit()
         cur.close()
-    return redirect("/login")
+    return render_template("signup.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -177,9 +177,8 @@ def customer():
             "INSERT INTO CurrentOffers(offer_id,MobileNo) VALUES(%s,%s)", (Of[1], user[0]))
         cur.close()
         return render_template('customers.html', user=user)
-        return redirect('/customer')
 
-    cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
+    cur.execute("SELECT * FROM Offers WHERE CMobileNo='%s'" % user[0])
     data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
@@ -192,9 +191,6 @@ def worker():
         return redirect('/login')
     user = session['user']
     cur = mysql.get_db().cursor()
-    # cur.execute("SELECT Offer_id FROM Request_Table WHERE MobileNo='%s'"%user[0])
-    # cur.execute(
-    #     "SELECT * FROM Accepted_Request WITH A1 as (SELECT * FROM Request_Table WHERE offer_id ='%s')")
     cur.execute(
         "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='{}') AND offer_id NOT IN (SELECT Offer_id FROM Offers WHERE MobileNo='{}')".format(user[0], user[0]))
     data = cur.fetchall()
