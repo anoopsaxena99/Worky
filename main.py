@@ -37,9 +37,13 @@ mysql = MySQL(app)
 @app.route('/')
 def home():
     if 'user' not in session:
-        return redirect('/login')
+        return redirect('/home1')
     user = session['user']
     return render_template('home.html', user=user)
+
+@app.route('/home1')
+def home1():
+    return render_template('home1.html')
 
 
 @app.route('/guide')
@@ -50,6 +54,61 @@ def guide():
 @app.route('/support')
 def support():
     return render_template('support.html')
+
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+
+        userdetails = request.form
+
+        # data from sign up page
+
+        # personal stuff
+        Num = userdetails.get('typeNumX')
+        Adhar_Id = userdetails.get('adhar')
+        password1 = request.form.get('password1')
+        password2 = request.form.get('password2')
+        name = userdetails.get('name')
+        dob = request.form.get('dob')
+        Adress = request.form.get('adress')
+
+        # skills details
+        NA = request.form.get('one')
+        Labour = request.form.get('two')
+        Mechanic = request.form.get('three')
+        Electrician = request.form.get('four')
+        Carpentary = request.form.get('five')
+        others = request.form.get('six')
+
+        # Min prize
+        MinPrize = 500
+        # Cursor of the database
+
+        cur = mysql.get_db().cursor()
+
+        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB) VALUES(%s,%s,%s,%s,%s)",
+                    (Num, password1, Adhar_Id, name, dob))
+        if NA:
+            cur.execute(
+                "INSERT INTO CUSTOMER(MobileNo,Rating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
+        #   #cur.execute("SELECT * FROM CUSTOMER WHERE NOE=1")
+        #   #rowi=cur.fetchall()
+        #   #print(rowi)
+        else:
+            if others == 'on':
+                cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                            (Num, 1, 1, 1, 1, 0, 0, MinPrize))
+            else:
+                cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                            (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
+        mysql.get_db().commit()
+        cur.close()
+    if 'user' in session:
+        user = session['user']
+        return redirect('/')
+    return render_template("signup.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -115,7 +174,7 @@ def customer():
                     (user[0], Days, Description, Wage, location))
         mysql.get_db().commit()
         cur.close()
-        # return render_template('customers.html', user=user)
+        return render_template('customers.html', user=user)
         return redirect('/customer')
 
     cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
@@ -231,23 +290,7 @@ def cusCompleted(sno=None):
     user = session['user']
     cur = mysql.get_db().cursor()
     if request.method == 'POST':
-        rating1 = request.form.get('rating1')
-        rating2 = request.form.get('rating2')
-        rating3 = request.form.get('rating3')
-        rating4 = request.form.get('rating4')
-        rating5 = request.form.get('rating5')
-        crating = 0
-        if rating1:
-            crating = 1
-        if rating2:
-            crating = 2
-        if rating3:
-            crating = 3
-        if rating4:
-            crating = 4
-        if rating5:
-            crating = 5
-        print(crating)
+        crating = request.form['crating']
         cur.execute("SELECT * FROM WorkRecord where offer_id='%s'" % sno)
         data = cur.fetchone()
         if data:
@@ -264,8 +307,7 @@ def cusCompleted(sno=None):
             return("success")
         mysql.get_db().commit()
         cur.close()
-        st = "/whoreq/{}".format(sno)
-        return redirect(st)
+        return redirect("/customer")
     cur.execute("SELECT * FROM Offers where offer_id='%s'" % sno)
     data = cur.fetchone()
     mysql.get_db().commit()
@@ -280,22 +322,7 @@ def worCompleted(sno=None):
     user = session['user']
     cur = mysql.get_db().cursor()
     if request.method == 'POST':
-        rating1 = request.form.get('rating1')
-        rating2 = request.form.get('rating2')
-        rating3 = request.form.get('rating3')
-        rating4 = request.form.get('rating4')
-        rating5 = request.form.get('rating5')
-        wrating = 0
-        if rating1:
-            wrating = 1
-        if rating2:
-            wrating = 2
-        if rating3:
-            wrating = 3
-        if rating4:
-            wrating = 4
-        if rating5:
-            wrating = 5
+        wrating = request.form['wrating']
         cur.execute("SELECT * FROM WorkRecord where offer_id='%s'" % sno)
         data = cur.fetchone()
         if data:
@@ -304,9 +331,12 @@ def worCompleted(sno=None):
         else:
             cur.execute(
                 "INSERT INTO WorkRecord(offer_id,WorkerMob,WRating) VALUES(%s,%s,%s)", (sno, user[0], wrating))
+            mysql.get_db().commit()
+            cur.close()
+            return("success")
         mysql.get_db().commit()
         cur.close()
-        return redirect("/worker")
+        return redirect("/customer")
     cur.execute("SELECT * FROM Offers where offer_id='%s'" % sno)
     data = cur.fetchone()
     mysql.get_db().commit()
@@ -325,8 +355,7 @@ def accept(sno=None, workerNo=None):
     # cur.execute("DELETE FROM Requested_")
     mysql.get_db().commit()
     cur.close()
-    s = "/whoreq/{}".format(sno)
-    return redirect(s)
+    return("Success")
 
 
 @app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
@@ -346,58 +375,6 @@ def whoreq(sno):
     return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data)
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-
-        userdetails = request.form
-
-        # data from sign up page
-
-        # personal stuff
-        Num = userdetails.get('typeNumX')
-        Adhar_Id = userdetails.get('adhar')
-        password1 = request.form.get('password1')
-        password2 = request.form.get('password2')
-        name = userdetails.get('name')
-        dob = request.form.get('dob')
-        Adress = request.form.get('adress')
-
-        # skills details
-        NA = request.form.get('one')
-        Labour = request.form.get('two')
-        Mechanic = request.form.get('three')
-        Electrician = request.form.get('four')
-        Carpentary = request.form.get('five')
-        others = request.form.get('six')
-
-        # Min prize
-        MinPrize = 500
-        # Cursor of the database
-
-        cur = mysql.get_db().cursor()
-
-        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB) VALUES(%s,%s,%s,%s,%s)",
-                    (Num, password1, Adhar_Id, name, dob))
-        if NA:
-            cur.execute(
-                "INSERT INTO CUSTOMER(MobileNo,Rating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
-        #   #cur.execute("SELECT * FROM CUSTOMER WHERE NOE=1")
-        #   #rowi=cur.fetchall()
-        #   #print(rowi)
-        else:
-            if others == 'on':
-                cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                            (Num, 1, 1, 1, 1, 0, 0, MinPrize))
-            else:
-                cur.execute("INSERT INTO WORKER(MobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                            (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
-        mysql.get_db().commit()
-        cur.close()
-    if 'user' in session:
-        user = session['user']
-        return redirect('/')
-    return render_template("signup.html")
 
 
 if __name__ == '__main__':

@@ -61,13 +61,13 @@
         <form method="POST">
             <input type="text" id="title" name="title" placeholder="title of work" />
 
-            <input type="text" id="days" name="days" placeholder="days" />
+            <input type="number" id="days" name="days" placeholder="days" />
 
             <input type="text" id="description" name="description" placeholder="description" />
 
             <input type="text" id="location" name="location" placeholder="location of Work" />
 
-            <input type="text" id="Price" name="Price" placeholder="Daily Wage" />
+            <input type="number" id="Price" name="Price" placeholder="Daily Wage" />
             <button type="submit" class="btn btn-outline-dark btn-sm mx-1">
           Post
         </button>
@@ -81,7 +81,7 @@
             <thead>
                 <tr>
                     <th scope="col">SNo</th>
-                    <th scope="col">work Description</th>
+                    <th scope="col" class="filterWork">work Description</th>
                     <th scope="col">Days of work</th>
                     <th scope="col">Price offer</th>
                     <th scope="col">Location</th>
@@ -104,10 +104,13 @@
                 update
               </button>
               <a
+             
                 href="/delete/{{row[1]}}"
                 type="button"
                 class="btn btn-outline-dark btn-sm mx-1"
-                style="background-color: #cbaca1;"
+                style="background-color: #db6940;"
+                id="deleteWork";
+
               >
                 delete
               </button>
@@ -133,12 +136,12 @@
           const item = task.firstChild.textContent.toLowerCase();
           if(item.indexOf(text) != -1){
             task.parentElement.parentElement.style.display ="block";
-            task.parentElement.parentElement.style.width ="80px";
-            //console.log("deepak ");
+          
+            //
           }
           else{
             task.parentElement.parentElement.style.display = "none ";
-            task.parentElement.parentElement.style.width ="80px";
+           
           }
 
 
@@ -146,6 +149,15 @@
        // console.log(text); 
       }
 
+
+    </script>
+    <script>
+      const deleteWorki = document.querySelector("#deleteWork");
+      deleteWorki.addEventListener('click', giveAlert);
+      function giveAlert(){
+         confirm("Are you sure?");
+         console.log(confirm);
+          }
 
     </script>
 
