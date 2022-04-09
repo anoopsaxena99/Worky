@@ -97,7 +97,7 @@ def signup():
             "INSERT INTO CUSTOMER(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
 
         if others == 'on':
-            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
                         (Num, 1, 1, 1, 1, 0, 0, MinPrize))
         else:
             cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
@@ -115,9 +115,11 @@ def login():
         password = userdetails.get('typePasswordX')
 
         cur = mysql.get_db().cursor()
-        cur.execute("SELECT * from PERSON where MobileNo='%s'" % Num)
+        cur.execute("SELECT * FROM PERSON where MobileNo='%s'" % Num)
         user = cur.fetchone()  # fetchall can also be used
         # print(user[MobileNo])
+        cur.execute("SELECT * FROM Worker where WMobileNo='%s'" % Num)
+        userWorker = cur.fetchone()
         cur.close()
 
         if user:
@@ -126,6 +128,7 @@ def login():
                 session['MobileNo'] = user[0]
                 session['Name'] = user[3]
                 session['user'] = user
+                session['userWorker'] = userWorker
                 return render_template('home.html', user=user)
             else:
                 return "password not correct"
@@ -163,24 +166,39 @@ def customer():
         Description = workDetails.get('description')
         location = workDetails.get('location')  # address
         Wage = workDetails.get('Price')
+<<<<<<< HEAD
 
         #SQL query
         cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
         data = cur.fetchall()
+=======
+        labour = workDetails.get('labour')
+        mechanic = workDetails.get('mechanic')
+        electrician = workDetails.get('electrician')
+        carpentry = workDetails.get('carpentry')
+        others = workDetails.get('others')
+        if others:
+            labour = 1
+            mechanic = 1
+            electrician = 1
+            carpentry = 1
+>>>>>>> ba09e232dd72f2d10411969225c0ca3acd5856d4
         now = datetime.now()
         Td = now.strftime('%Y-%m-%d %H:%M:%S')
-        cur.execute("INSERT INTO allOffers(MobileNo,Days,Description,DailyWage,Address,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
-                    (user[0], Days, Description, Wage, location, now))
+
+        cur.execute("INSERT INTO Offers(CMobileNo,Days,Description,DailyWage,Address,DateTime,Labour,Mechanic,Electrician,Carpentary) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (user[0], Days, Description, Wage, location, now, labour, mechanic, electrician, carpentry))
 
         mysql.get_db().commit()
-        cur.execute("SELECT * FROM allOffers WHERE DateTime='%s'", (now))
+        cur.execute("SELECT * FROM Offers WHERE DateTime='{}'".format(now))
         Of = cur.fetchone()
-        cur.execute(
-            "INSERT INTO CurrentOffers(offer_id,MobileNo) VALUES(%s,%s)", (Of[1], user[0]))
+        cur.execute("INSERT INTO ActiveOffers(offer_id) VALUES(%s)" % Of[1])
+        mysql.get_db().commit()
         cur.close()
-        return render_template('customers.html', user=user)
+        return redirect('/customer')
 
-    cur.execute("SELECT * FROM Offers WHERE CMobileNo='%s'" % user[0])
+    cur.execute(
+        "SELECT * FROM ActiveOffers as a1 INNER JOIN Offers as a2 ON  a1.offer_id=a2.offer_id WHERE a2.CMobileNo='%s'" % user[0])
     data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
@@ -192,19 +210,20 @@ def worker():
     if 'user' not in session:
         return redirect('/login')
     user = session['user']
+    skill = session['userWorker']
     cur = mysql.get_db().cursor()
     cur.execute(
-        "SELECT * FROM Offers WHERE offer_id NOT IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='{}') AND offer_id NOT IN (SELECT Offer_id FROM Offers WHERE MobileNo='{}')".format(user[0], user[0]))
-    data = cur.fetchall()
+        "SELECT * FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}')".format(user[0], user[0], user[0], user[0]))
+    data = cur.fetchall()  # need to specify request according to their interest
     cur.execute(
-        "SELECT * FROM Offers WHERE offer_id IN (SELECT Offer_id FROM Request_Table WHERE UserMobileNo='%s' )" % user[0])
+        "SELECT * FROM Request_Table AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}'".format(user[0]))
     requested = cur.fetchall()
     cur.execute(
-        "WITH A1 as (SELECT * FROM Accepted_Request where WorkerMobile='%s') SELECT * FROM A1 INNER JOIN Offers ON A1.Offer_id=Offers.Offer_id" % user[0])
+        "SELECT * FROM AcceptedRequest AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}'".format(user[0]))
     accept_offer = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer)
+    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer, skill=skill)
 
 
 @app.route('/offer')
