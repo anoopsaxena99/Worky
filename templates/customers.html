@@ -116,6 +116,8 @@
             <a class="nav-link" href="/logout">Log-Out</a>
                 </li>
 
+
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               More
@@ -192,21 +194,21 @@
                 {% for row in data : %}
                 <tr>
                     <th scope="row">{{loop.index}}</th>
-                    <td><a href="/whoreq/{{row[1]}}" type="button">
+                    <td><a href="/whoreq/{{row[2]}}" type="button">
             {{row[4]}}
             </button></td>
             <td>{{row[3]}}</td>
             <td>{{row[5]}}</td>
             <td>{{row[6]}}</td>
             <td>
-              <a href="/update/{{row[1]}}"
+              <a href="/update/{{row[2]}}"
               type="button" class="btn btn-outline-dark btn-sm mx-1"
               style="background-color: #93bbc6;">
                 update
               </button>
               <a
              
-                href="/delete/{{row[1]}}"
+                href="/delete/{{row[2]}}"
                 type="button"
                 class="btn btn-outline-dark btn-sm mx-1"
                 style="background-color: #db6940;"

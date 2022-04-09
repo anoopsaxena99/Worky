@@ -1,60 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
 
     <title>update</title>
     <style>
-      h1 {
-        color: rebeccapurple;
-        text-align: center;
-      }
+        h1 {
+            color: rebeccapurple;
+            text-align: center;
+        }
     </style>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <br />
     <br />
+
+
+
     <div class="container my-4">
-      <h1>{% print("Update Work-Item") %}</h1>
-      <form method="POST">
-        <input
-          type="text"
-          id="title"
-          name="title"
-          placeholder="title of work"
-        />
+        <form method="POST">
 
-        <input type="text" id="days" name="days" value="{{data[2]}}" />
+            <input type="text" id="description" name="description" placeholder="Work description" />
 
-        <input
-          type="text"
-          id="description"
-          name="description"
-          value="{{data[3]}}"
-        />
+            <input type="number" id="days" name="days" placeholder="days" />
 
-        <input type="text" id="location" name="location" value="{{data[5]}}" />
+            <input type="text" id="location" name="location" placeholder="location of Work" />
 
-        <input type="text" id="Price" name="Price" value="{{data[4]}}" />
-        <button type="submit" class="btn btn-outline-dark btn-sm mx-1">
-          Post
-        </button>
-      </form>
+            <input type="number" id="Price" name="Price" placeholder="Daily Wage" /><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="labour" id="inlineCheckbox1" value="1" />
+                <label class="form-check-label" for="inlineCheckbox1">Labour</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="mechanic" id="inlineCheckbox2" value="1" />
+                <label class="form-check-label" for="inlineCheckbox2">Mechanic</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="electrician" id="inlineCheckbox3" value="1" />
+                <label class="form-check-label" for="inlineCheckbox3">Electrician</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="carpentry" id="inlineCheckbox4" value="1" />
+                <label class="form-check-label" for="inlineCheckbox3">Carpentry</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="others" id="inlineCheckbox5" value="1" />
+                <label class="form-check-label" for="inlineCheckbox3">Others</label>
+            </div>
+            <button type="submit" class="btn btn-outline-dark btn-sm mx-1">
+                                                           
+            Post
+          </button>
+        </form>
     </div>
-  </body>
+</body>
+
 </html>

@@ -22,9 +22,6 @@ app.config["MYSQL_DATABASE_DB"] = db['mysql_db']
 mysql = MySQL(app)
 
 
-
-
-
 @app.route('/')
 def home():
     if 'user' not in session:
@@ -85,17 +82,18 @@ def signup():
         cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
                     (Num, password1, Adhar_Id, name, dob, now))
         cur.execute(
-            "INSERT INTO CUSTOMER(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
+            "INSERT INTO Customer(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
 
-        if others == 'on':
-            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+        if NA != 'on':
+            if others == 'on':
+                cur.execute("INSERT INTO Worker(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
                         (Num, 1, 1, 1, 1, 0, 0, MinPrize))
-        else:
-            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+            else:
+                cur.execute("INSERT INTO Worker(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
                         (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
         mysql.get_db().commit()
         cur.close()
-    return render_template("signup.html")
+    return redirect('/login')  # after signup user goes to login page
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -138,7 +136,7 @@ def logout():
     session.pop('MobileNo', None)
     session.pop('Name', None)
     session.pop('user', None)
-    return redirect('/login')
+    return redirect('/home1')
 
 
 @app.route('/customer', methods=['GET', 'POST'])
@@ -152,7 +150,6 @@ def customer():
 
         # extracting details from customer page
         workDetails = request.form
-        Wt = workDetails.get('title')
         Days = workDetails.get('days')
         Description = workDetails.get('description')
         location = workDetails.get('location')  # address
@@ -162,6 +159,7 @@ def customer():
         electrician = workDetails.get('electrician')
         carpentry = workDetails.get('carpentry')
         others = workDetails.get('others')
+        
         if others:
             labour = 1
             mechanic = 1
@@ -201,7 +199,7 @@ def worker():
     data = cur.fetchall()  # need to specify request according to their interest
     cur.execute(
         "SELECT * FROM Request_Table AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}'".format(user[0]))
-    requested = cur.fetchall()
+    requested = cur.fetchall() # for show requested offer  by worker on worker page
     cur.execute(
         "SELECT * FROM AcceptedRequest AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}'".format(user[0]))
     accept_offer = cur.fetchall()
@@ -215,10 +213,12 @@ def offer():
     return render_template('offer.html')
 
 
-@app.route('/delete/<int:sno>')
+@app.route('/delete/<int:sno>')# for deleting the offer by the customers in customers page
 def delete(sno):
+    user = session['user']
     cur = mysql.get_db().cursor()
-    cur.execute("DELETE FROM Offers WHERE offer_id ='%s'" % sno)
+    cur.execute("DELETE FROM ActiveOffers WHERE offer_id = %s", (sno)) #first we have to delete from active offer than we can delete from offer table.
+    cur.execute("DELETE FROM Offers WHERE offer_id =%s AND CMobileNo=%s ", (sno, user[0]))
     mysql.get_db().commit()
     cur.close()
     return redirect("/customer")
@@ -246,7 +246,7 @@ def reject(sno=None, workerNo=None):
     user = session['user']
     cur = mysql.get_db().cursor()
     cur.execute(
-        "DELETE FROM Request_Table WHERE Offer_id =%s AND UserMobileNo=%s", (sno, workerNo))
+        "DELETE FROM Request_Table WHERE Offer_id =%s AND WMobileNo=%s", (sno, workerNo))
     mysql.get_db().commit()
     cur.close()
     s = "/whoreq/%s" % sno
@@ -261,7 +261,7 @@ def req(sno):
     user = session['user']
     cur = mysql.get_db().cursor()
     cur.execute(
-        "INSERT INTO Request_Table(UserMobileNo,Offer_id) VALUES(%s,%s)", (user[0], sno))
+        "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (user[0], sno))
     mysql.get_db().commit()
     cur.close()
     return redirect("/worker")
@@ -270,13 +270,32 @@ def req(sno):
 @app.route('/update/<int:sno>', methods=['GET', 'POST'])
 def update(sno):
     cur = mysql.get_db().cursor()
+    user = session['user']
     if request.method == 'POST':
-        days = request.form['days']
-        description = request.form['description']
-        location = request.form['location']
-        price = request.form['Price']
-        cur.execute("UPDATE Offers SET Days=%s,Description=%s,DailyWage=%s,Address=%s WHERE offer_id =%s",
-                    (days, description, price, location, sno))
+         # extracting details from customer page
+        workDetails = request.form
+        days = workDetails.get('days')
+        description = workDetails.get('description')
+        location = workDetails.get('location')  # address
+        Price = workDetails.get('Price')
+        labour = workDetails.get('labour')
+        mechanic = workDetails.get('mechanic')
+        electrician = workDetails.get('electrician')
+        carpentry = workDetails.get('carpentry')
+        others = workDetails.get('others')
+        
+        if others:
+            labour = 1
+            mechanic = 1
+            electrician = 1
+            carpentry = 1
+        now = datetime.now()
+        Td = now.strftime('%Y-%m-%d %H:%M:%S')
+
+        
+        print(user[0])
+        cur.execute("UPDATE Offers SET Days=%s,Description=%s,DailyWage=%s,Address=%s, DateTime=%s, Labour=%s,  Mechanic=%s, Electrician=%s, Carpentary=%s WHERE offer_id =%s AND CMobileNo = ",
+                    (days, description, Price, location, now, labour,mechanic,electrician,carpentry, sno, user[0]))
         mysql.get_db().commit()
         cur.close()
         return redirect("/customer")
@@ -369,10 +388,10 @@ def whoreq(sno):
     user = session['user']
     cur = mysql.get_db().cursor()
     cur.execute(
-        "WITH A1 as (SELECT UserMobileNo FROM Request_Table WHERE offer_id ='%s') SELECT A1.UserMobileNo , PERSON.Name FROM A1 INNER JOIN PERSON ON A1.UserMobileNo=PERSON.MobileNo" % sno)
+        "WITH A1 as (SELECT WMobileNo FROM Request_Table WHERE offer_id ='%s') SELECT A1.WMobileNo , PERSON.Name FROM A1 INNER JOIN PERSON ON A1.WMobileNo=PERSON.MobileNo" % sno)
     data = cur.fetchall()
     cur.execute(
-        "WITH A1 as (SELECT * FROM Accepted_Request where CustomerMobile=%s) SELECT PERSON.name,A1.WorkerMobile FROM A1 INNER JOIN PERSON ON A1.WorkerMobile=PERSON.MobileNo where offer_id=%s ;", (user[0], sno))
+        "WITH A1 as (SELECT * FROM AcceptedRequest where WMobileNo=%s) SELECT PERSON.name,A1.WMobileNo FROM A1 INNER JOIN PERSON ON A1.WMobileNo = PERSON.MobileNo where offer_id=%s ;", (user[0], sno))
     accept_data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
