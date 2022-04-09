@@ -22,16 +22,7 @@ app.config["MYSQL_DATABASE_DB"] = db['mysql_db']
 mysql = MySQL(app)
 
 
-# class customer_work(db.model1):
-#   sno = db.Column(db.Integer, primery_key = True)
-#   work_title = db.Column(db.String(300), nullable = True)
-#   desc = db.Column(db.String(500), nullable = True)
-#   wotype = db.Column(db.String(50), nullable = True)
-#   Location = db.Column(db.String(50), nullable = True)
-#   date_created = db.Column(db.Datetime, default = datetime.utcnow)
 
-# routes on the website
-# routes on the website
 
 
 @app.route('/')
@@ -166,12 +157,6 @@ def customer():
         Description = workDetails.get('description')
         location = workDetails.get('location')  # address
         Wage = workDetails.get('Price')
-<<<<<<< HEAD
-
-        #SQL query
-        cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
-        data = cur.fetchall()
-=======
         labour = workDetails.get('labour')
         mechanic = workDetails.get('mechanic')
         electrician = workDetails.get('electrician')
@@ -182,7 +167,6 @@ def customer():
             mechanic = 1
             electrician = 1
             carpentry = 1
->>>>>>> ba09e232dd72f2d10411969225c0ca3acd5856d4
         now = datetime.now()
         Td = now.strftime('%Y-%m-%d %H:%M:%S')
 
