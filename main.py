@@ -97,7 +97,7 @@ def signup():
             "INSERT INTO CUSTOMER(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
 
         if others == 'on':
-            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,Rating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+            cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
                         (Num, 1, 1, 1, 1, 0, 0, MinPrize))
         else:
             cur.execute("INSERT INTO WORKER(WMobileNo,Labour,Mechanic,Electrician,Carpentary,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
@@ -166,22 +166,32 @@ def customer():
         Description = workDetails.get('description')
         location = workDetails.get('location')  # address
         Wage = workDetails.get('Price')
-        cur.execute("SELECT * FROM Offers WHERE MobileNo='%s'" % user[0])
-        data = cur.fetchall()
+        labour = workDetails.get('labour')
+        mechanic = workDetails.get('mechanic')
+        electrician = workDetails.get('electrician')
+        carpentry = workDetails.get('carpentry')
+        others = workDetails.get('others')
+        if others:
+            labour = 1
+            mechanic = 1
+            electrician = 1
+            carpentry = 1
         now = datetime.now()
         Td = now.strftime('%Y-%m-%d %H:%M:%S')
-        cur.execute("INSERT INTO allOffers(MobileNo,Days,Description,DailyWage,Address,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
-                    (user[0], Days, Description, Wage, location, now))
+
+        cur.execute("INSERT INTO Offers(CMobileNo,Days,Description,DailyWage,Address,DateTime,Labour,Mechanic,Electrician,Carpentary) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (user[0], Days, Description, Wage, location, now, labour, mechanic, electrician, carpentry))
 
         mysql.get_db().commit()
-        cur.execute("SELECT * FROM allOffers WHERE DateTime='%s'", (now))
+        cur.execute("SELECT * FROM Offers WHERE DateTime='{}'".format(now))
         Of = cur.fetchone()
-        cur.execute(
-            "INSERT INTO CurrentOffers(offer_id,MobileNo) VALUES(%s,%s)", (Of[1], user[0]))
+        cur.execute("INSERT INTO ActiveOffers(offer_id) VALUES(%s)" % Of[1])
+        mysql.get_db().commit()
         cur.close()
-        return render_template('customers.html', user=user)
+        return redirect('/customer')
 
-    cur.execute("SELECT * FROM Offers WHERE CMobileNo='%s'" % user[0])
+    cur.execute(
+        "SELECT * FROM ActiveOffers as a1 INNER JOIN Offers as a2 ON  a1.offer_id=a2.offer_id WHERE a2.CMobileNo='%s'" % user[0])
     data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()

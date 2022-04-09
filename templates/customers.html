@@ -142,26 +142,26 @@
 
             <input type="number" id="Price" name="Price" placeholder="Daily Wage" /><br>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="labour" id="inlineCheckbox1" value="option1" />
+                <input class="form-check-input" type="checkbox" name="labour" id="inlineCheckbox1" value="1" />
                 <label class="form-check-label" for="inlineCheckbox1">Labour</label>
             </div>
 
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="mechanic" id="inlineCheckbox2" value="option2" />
+                <input class="form-check-input" type="checkbox" name="mechanic" id="inlineCheckbox2" value="1" />
                 <label class="form-check-label" for="inlineCheckbox2">Mechanic</label>
             </div>
 
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="electrician" id="inlineCheckbox3" value="option3" />
+                <input class="form-check-input" type="checkbox" name="electrician" id="inlineCheckbox3" value="1" />
                 <label class="form-check-label" for="inlineCheckbox3">Electrician</label>
             </div>
 
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="carpentry" id="inlineCheckbox4" value="option4" />
+                <input class="form-check-input" type="checkbox" name="carpentry" id="inlineCheckbox4" value="1" />
                 <label class="form-check-label" for="inlineCheckbox3">Carpentry</label>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" name="others" id="inlineCheckbox5" value="option5" />
+                <input class="form-check-input" type="checkbox" name="others" id="inlineCheckbox5" value="1" />
                 <label class="form-check-label" for="inlineCheckbox3">Others</label>
             </div>
             <button type="submit" class="btn btn-outline-dark btn-sm mx-1">
@@ -176,7 +176,7 @@
 
     {%if data: %}
     <div class="container my-4">
-        <h2>{{user[3]}} work list</h2>
+        <h2>{{user[3]}} Offer Generated</h2>
         <input type="text" placeholder="Filter Work" id="filter" label="Filter" class="float-right" />
         <table class="table table-striped table-hover">
             <thead>
@@ -193,11 +193,11 @@
                 <tr>
                     <th scope="row">{{loop.index}}</th>
                     <td><a href="/whoreq/{{row[1]}}" type="button">
-            {{row[3]}}
+            {{row[4]}}
             </button></td>
-            <td>{{row[2]}}</td>
-            <td>{{row[4]}}</td>
+            <td>{{row[3]}}</td>
             <td>{{row[5]}}</td>
+            <td>{{row[6]}}</td>
             <td>
               <a href="/update/{{row[1]}}"
               type="button" class="btn btn-outline-dark btn-sm mx-1"
