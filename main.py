@@ -94,7 +94,8 @@ def signup():
                             (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
         mysql.get_db().commit()
         cur.close()
-    return redirect('/login')  # after signup user goes to login page
+        return redirect('/login')
+    return render_template('signup.html')  # after signup user goes to login page
 
 
 @app.route('/login', methods=['GET', 'POST'])
