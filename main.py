@@ -28,7 +28,8 @@ def home():
     if 'user' not in session:
         return redirect('/home1')
     user = session['user']
-    return render_template('home.html', user=user)
+    userworker = session['userWorker']
+    return render_template('home.html', user=user, userworker=userworker)
 
 
 @app.route('/home1')
@@ -94,7 +95,9 @@ def signup():
                             (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentary == 'on', 0, 0, MinPrize))
         mysql.get_db().commit()
         cur.close()
-    return redirect('/login')  # after signup user goes to login page
+        return redirect('/login')  # after signup user goes to login page
+    # after signup user goes to login page
+    return render_template('signup.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -145,6 +148,7 @@ def customer():
     if 'user' not in session:
         return redirect('/login')
     user = session['user']
+    userWorker = session['userWorker']
     cur = mysql.get_db().cursor()
 
     if request.method == 'POST':
@@ -185,16 +189,15 @@ def customer():
     data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
-    return render_template('customers.html', user=user, data=data)
+    return render_template('customers.html', user=user, data=data, userWorker=userWorker)
 
 
 @app.route('/worker')
 def worker():
-
     if 'user' not in session:
         return redirect('/login')
-    if session['userWorker'] == 0:
-        redirect('/customer')
+    if session['userWorker'] == None:
+        return redirect('/customer')
     user = session['user']
     skill = session['userWorker']
     cur = mysql.get_db().cursor()
