@@ -27,10 +27,6 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/offer">Your Offer <span class="sr-only">(current)</span></a
-        >
-      </li>
       <li class="nav-item">
         <a class="nav-link" href="/logout">Log-Out</a>
                 </li>
@@ -61,16 +57,18 @@
                     <th scope="col">SNo</th>
                     <th scope="col">Name</th>
                     <th scope="col">Mobile Number</th>
+                    <th scope="col">Worker Rating</th>
                 </tr>
             </thead>
             {% for row in accept_data :%}
             <tbody>
                 <tr>
                     <th scope="row">{{loop.index}}</th>
-                    <td>{{row[0]}}</td>
+                    <td>{{row[3]}}</td>
                     <td>{{row[1]}}</td>
+                    <td>{{row[2]}}</td>
                     <td>
-                        <a href="/cusCompleted/{{sno}}" type="button" class="btn btn-outline-dark btn-sm mx-1" style="background-color: #90c790;">
+                        <a href="/cusCompleted/{{sno}}/{{row[1]}}" type="button" class="btn btn-outline-dark btn-sm mx-1" style="background-color: #90c790;">
                 Work Completed
               </button>
             </td>
@@ -86,19 +84,21 @@
             <th scope="col">SNo</th>
             <th scope="col">Name</th>
             <th scope="col">Mobile Number</th>
+            <th scope="col">Worker Rating</th>
           </tr>
         </thead>
         {% for row in data :%}
         <tbody>
           <tr>
             <th scope="row">{{loop.index}}</th>
+            <td>{{row[3]}}</td>
             <td>{{row[1]}}</td>
-            <td>{{row[0]}}</td>
+            <td>{{row[2]}}</td>
             <td>
-              <a href="/accept/{{sno}}/{{row[0]}}" type="button" class="btn btn-outline-dark btn-sm mx-1">
+              <a href="/accept/{{sno}}/{{row[1]}}" type="button" class="btn btn-outline-dark btn-sm mx-1">
                 Accept
               </button>
-              <a  href="/reject/{{sno}}/{{row[0]}}" type="button" class="btn btn-outline-dark btn-sm mx-1">
+              <a  href="/reject/{{sno}}/{{row[1]}}" type="button" class="btn btn-outline-dark btn-sm mx-1">
                 reject
               </button>
             </td>

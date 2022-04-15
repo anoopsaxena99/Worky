@@ -19,6 +19,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <style>
+        
         .selectBox {
             position: relative;
         }
@@ -30,7 +31,17 @@
             font-size: 1.2em;
             border-radius: 5px;
         }
-        
+        .my-4 {
+            margin-bottom: 1.5rem!important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .my-3 {
+          border:1px solid black;
+        }
+
         .overSelect {
             position: absolute;
             left: 0;
@@ -130,7 +141,23 @@
 
         </div>
     </nav>
-
+    <!-- <center>
+      <h1>GeeksforGeeks</h1>
+      <div class="scroll">It is a good platform to learn programming. 
+      It is an educational website. Prepare for the Recruitment drive
+      of product based companies like Microsoft, Amazon, Adobe etc with
+      a free online placement preparation course. The course focuses 
+      on various MCQ's & Coding question likely to be asked in the 
+      interviews & make your upcoming placement season efficient and 
+      successful. Also, any geeks can help other geeks by writing 
+      articles on the GeeksforGeeks, publishing articles follow few 
+      steps that are Articles that need little modification/improvement
+      from reviewers are published first. To quickly get your articles
+      reviewed, please refer existing articles, their formatting style,
+      coding style, and try to make you are close to them. In case you
+      are a beginner, you may refer Guidelines to write an Article
+      </div>
+    </center> -->
     <div class="container my-4">
         <form method="POST">
 
@@ -175,9 +202,11 @@
 
 
     {%if data: %}
-    <div class="container my-4">
-        <h2>{{user[3]}} Offer Generated</h2>
-        <input type="text" placeholder="Filter Work" id="filter" label="Filter" class="float-right" />
+    <h2 style="text-align: center;">{{user[3]}}'s Offers Generated</h2>
+    <div class="container my-3 ">
+        <!-- <input type="text" placeholder="Filter Work2" id="filter2" label="Filter" class="float-right" />
+        <input type="text" placeholder="Filter Work3" id="filter3" label="Filter" class="float-right" />
+        <p class="float-right" >Prize In Range</p> -->
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
