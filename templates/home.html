@@ -90,9 +90,52 @@
             </ul>
         </div>
     </nav>
+<<<<<<< HEAD
     <div class="student-profile py-4">
         <div class="container">
             <div class="row">
+=======
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %} {% if category =='error'
+    %}
+    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% else %}
+    <div class="alert alert-success alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %} {% if user: %}
+    <a href="/updateDatabase" class="btnone">Update Database here</a>
+    <h3 style="text-align: center">Hi {{user[3]}}</h3>
+    {% endif %}
+
+    <div class="container">
+      <div id="myCarousel" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+          <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+          <li data-target="#myCarousel" data-slide-to="1"></li>
+          <li data-target="#myCarousel" data-slide-to="2"></li>
+        </ol>
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+          <div class="item active">
+            <img
+              style="height: 450x"
+              src="https://www.w3schools.com/bootstrap/la.jpg"
+              alt="Los Angeles"
+              style="width: 100%"
+            />
+          </div>
+>>>>>>> ef96d3f9621a0688168ebb12a5614528442be192
 
                 <div class="col-lg-8">
                     <div class="card shadow-sm">
