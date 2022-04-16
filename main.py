@@ -360,6 +360,38 @@ def delete(sno):
     user = session['user']
     cur = mysql.get_db().cursor()
     # first we have to delete from active offer than we can delete from offer table.
+
+    # first see is there any accepted Request or not
+    cur.execute("SELECT * AcceptedRequest WHERE offer_id = %s", (sno))
+    AcceptedRequest = cur.fetchall()
+    if AcceptedRequest:
+        # if there is accepted request then we have to rate all the accepted workers.
+        for each in AcceptedRequest:
+            cur.execute(
+                "SELECT * FROM WorkRecord WHERE  offer_id='{}' AND WMobileNo='{}' AND DateTime='{}'".format(each[1], each[0], each[2]))
+            data = cur.fetchone()
+            deleteit = False  # crating
+            cur.execute(
+                "SELECT * FROM Worker WHERE WMobileNo='{}'".format(each[0]))
+            worker = cur.fetchone()
+            WRating = worker[5]
+            if data != None:
+                deleteit = True
+            if data:
+                # print("update Working")
+                cur.execute(
+                    "UPDATE WorkRecord SET WRating='{}' where offer_id='{}' AND WMobileNo='{}'AND DateTime='{}'".format(WRating, each[1], each[0], each[2]))
+            else:
+                cur.execute(
+                    "INSERT INTO WorkRecord(offer_id,WMobileNo,WRating,DateTime) VALUES(%s,%s,%s,%s)", (each[1], each[0], WRating, each[2]))
+            if deleteit:
+                cur.execute(
+                    "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (each[1], each[0]))
+            cur.execute("UPDATE Worker SET WRating='{}' , Experience ='{}' WHERE WMobileNo='{}'".format(
+                WRating, worker[6]+1, each[0]))
+            cur.execute()
+            mysql.get_db().commit()
+
     cur.execute("DELETE FROM ActiveOffers WHERE offer_id = %s", (sno))
     cur.execute(
         "DELETE FROM Offers WHERE offer_id =%s", (sno))
@@ -510,6 +542,11 @@ def cusCompleted(sno=None, WMobileNo=None):
         if deleteit:
             cur.execute(
                 "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (sno, WMobileNo))
+        cur.execute(
+            "SELECT * FROM Worker WHERE WMobileNo='{}'".format(WMobileNo))
+        worker = cur.fetchone()
+        cur.execute("UPDATE Worker SET WRating='{}' , Experience ='{}' WHERE WMobileNo='{}'".format(
+            (WRating+worker[5]*worker[6])/(worker[6]+1), worker[6]+1, WMobileNo))
         mysql.get_db().commit()
         cur.close()
         s = '/whoreq/{}'.format(sno)
