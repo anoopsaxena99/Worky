@@ -5,7 +5,8 @@ from flask import Flask, flash
 from flaskext.mysql import MySQL
 from pymysql import NULL
 from sqlalchemy import null
-#from tables import Description
+from werkzeug.security import generate_password_hash, check_password_hash
+# from tables import Description
 import yaml
 from flask import Blueprint, render_template, request, redirect, session
 from datetime import date, datetime
@@ -14,6 +15,19 @@ import os
 from google.oauth2 import service_account
 
 # Working on Google Api's
+
+
+app = Flask(__name__)
+
+app.secret_key = 'your secret key'
+# Database Configuration
+db = yaml.load(open('db.yaml'))
+
+app.config["MYSQL_DATABASE_HOST"] = db['mysql_host']
+app.config["MYSQL_DATABASE_USER"] = db['mysql_user']
+app.config["MYSQL_DATABASE_PASSWORD"] = db['mysql_password']
+app.config["MYSQL_DATABASE_DB"] = db['mysql_db']
+mysql = MySQL(app)
 
 
 def get_credentials():
@@ -41,6 +55,7 @@ def get_service(service_name='sheets', api_version='v4'):
     return service
 
 
+@app.route('/updateDatabase')
 def updatedatabase():
     service = get_service()
     spreadsheet_id = os.environ["GOOGLE_SPREADSHEET_ID"]
@@ -54,37 +69,64 @@ def updatedatabase():
         if row not in res:
             res.append(row)
     values = res
-    print(values)
-    # for row in values:
-    #     # row[0] is an number
-    #     cur = mysql.get_db().cursor()
+    # print(values)
+    cur = mysql.get_db().cursor()
 
-    #     cur.execute(
-    #         "SELECT a1.offer_id FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}') AND a1.offer_id IN  (With b1 as (SELECT b3.offer_id,DailyWage,Labour,Mechanic,Electrician,Carpentry FROM ActiveOffers AS b3 INNER JOIN Offers ON b3.offer_id=Offers.offer_id),b2 as (SELECT * FROM Worker where WMobileNo='{}') select b1.offer_id from b1,b2 where b1.DailyWage>=b2.MinPrice AND ((b1.Labour=1 and b2.Labour=1) or (b1.Electrician=1 and b2.Electrician=1) or (b1.Carpentry=1 and b2.Carpentry=1) or (b1.Mechanic=1 and b2.Mechanic=1)) )".format(row[1], row[1], row[1], row[1], row[1]))
-    #     data = cur.fetchall()
+    for row in values:
+        WMobileNo = row[0]
+        cur.execute(
+            "SELECT * FROM Worker where WMobileNo='{}'".format(WMobileNo))
+        check = cur.fetchone()
+        # print(WMobileNo, check)
+        if check == None:
+            continue
+        cur.execute(
+            "SELECT * FROM AcceptedRequest where WMobileNo='{}'".format(WMobileNo))
+        Arequest = cur.fetchall()
+        # print(Arequest)
+        for eachRequest in Arequest:
+            print(eachRequest)
+            cur.execute("SELECT * FROM WorkRecord WHERE WMobileNo='{}' AND offer_id='{}' AND DateTime='{}'".format(
+                eachRequest[0], eachRequest[1], eachRequest[2]))
+            temp = cur.fetchone()
+            # print(temp)
+            cur.execute(
+                "SELECT * FROM Offers where offer_id='{}'".format(eachRequest[1]))
+            CMobileNo = cur.fetchone()
+            CMobileNo = CMobileNo[0]
+            # print(CMobileNo)
+            cur.execute(
+                "SELECT * FROM Customer WHERE CMobileNo='{}'".format(CMobileNo))
+            CRating = cur.fetchone()
+            CRating = CRating[1]
+            # print(CRating)
+            if temp == None:
+                cur.execute(
+                    "INSERT INTO WorkRecord(offer_id,WMobileNo,CRating,DateTime) VALUES(%s,%s,%s,%s)", (eachRequest[1], eachRequest[0], CRating, eachRequest[2]))
+            else:
+                cur.execute(
+                    "UPDATE WorkRecord SET CRating='{}' where offer_id='{}' AND WMobileNo='{}' AND DateTime='{}'".format(CRating, eachRequest[1], eachRequest[0], eachRequest[2]))
 
-    #     for offerid in data:
-    #         cur.execute(
-    #             "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (row[1], offerid[0]))
-    #     mysql.get_db().commit()
-    #     cur.close()
+                # cur.execute(
+                # "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (eachRequest[0], WMobileNo))
+            mysql.get_db().commit()
+        cur.execute(
+            "SELECT * FROM Worker WHERE WMobileNo='{}'".format(WMobileNo))
+        MinWage = cur.fetchone()
+        MinWage = MinWage[7]
+        # for row in values:
+        #     cur.execute(
+        #         "SELECT a1.offer_id FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}') AND a1.offer_id IN  (With b1 as (SELECT b3.offer_id,DailyWage,Labour,Mechanic,Electrician,Carpentry FROM ActiveOffers AS b3 INNER JOIN Offers ON b3.offer_id=Offers.offer_id),b2 as (SELECT * FROM Worker where WMobileNo='{}') select b1.offer_id from b1,b2 where b1.DailyWage>=b2.MinPrice AND ((b1.Labour=1 and b2.Labour=1) or (b1.Electrician=1 and b2.Electrician=1) or (b1.Carpentry=1 and b2.Carpentry=1) or (b1.Mechanic=1 and b2.Mechanic=1))) AND Offers.DailyWage>='{}'".format(row[0], row[0], row[0], row[0], row[0], MinWage))
+        #     Offers = cur.fetchall()
+        #     for eachOfferId in Offers:
+        #         cur.execute(
+        #             "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (WMobileNo, eachOfferId[0]))
+        #         mysql.get_db().commit()
+    mysql.get_db().commit()
+    cur.close()
+    return redirect('/')
     # request = service.spreadsheets().values().clear(
     # spreadsheetId=spreadsheet_id, range=range_name).execute()
-
-
-app = Flask(__name__)
-
-app.secret_key = 'your secret key'
-# Database Configuration
-db = yaml.load(open('db.yaml'))
-
-app.config["MYSQL_DATABASE_HOST"] = db['mysql_host']
-app.config["MYSQL_DATABASE_USER"] = db['mysql_user']
-app.config["MYSQL_DATABASE_PASSWORD"] = db['mysql_password']
-app.config["MYSQL_DATABASE_DB"] = db['mysql_db']
-mysql = MySQL(app)
-
-updatedatabase()
 
 
 @app.route('/')
@@ -119,11 +161,9 @@ def signup():
     if request.method == 'POST':
         # data from sign up page
         userdetails = request.form
-
         # personal stuff
         Num = userdetails.get('typeNumX')
         Adhar_Id = userdetails.get('adhar')
-
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
         name = userdetails.get('name')
@@ -142,24 +182,42 @@ def signup():
         # Min prize
         MinPrize = request.form.get('MinWage')
         # Cursor of the database
+        if len(Num) > 13:
+            flash("Mobile Number's Digit Exceeding", category="error")
+        elif len(Adhar_Id) > 12:
+            flash("Adhar's Number Cannot Exceed 12 digits", category="error")
+        elif password1 != password2:
+            flash('Passwords don\'t match.', category='error')
+        elif len(password1) < 7:
+            flash('Password must be at least 7 characters.', category='error')
+        elif len(name) < 2:
+            flash('First name must be greater than 1 character.', category='error')
+        elif NA == 'on' and (Labour == 'on' or Mechanic == 'on' or Electrician == 'on' or Carpentry == 'on' or others == 'on'):
+            flash(
+                'Select NA for Customer otherwise Your class of work dont select both', category='error')
+        else:
+            password2 = generate_password_hash(password1, method='sha256')
+            print(password2)
+            password1 = generate_password_hash(password1, method='sha256')
+            print(password1)
+            print(type(password1))
+            cur = mysql.get_db().cursor()
+            cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
+                        (Num, password1, Adhar_Id, name, dob, now))
+            cur.execute(
+                "INSERT INTO Customer(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
 
-        cur = mysql.get_db().cursor()
-
-        cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
-                    (Num, password1, Adhar_Id, name, dob, now))
-        cur.execute(
-            "INSERT INTO Customer(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
-
-        if NA != 'on':
-            if others == 'on':
-                cur.execute("INSERT INTO Worker(WMobileNo,Labour,Mechanic,Electrician,Carpentry,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                            (Num, 1, 1, 1, 1, 0, 0, MinPrize))
-            else:
-                cur.execute("INSERT INTO Worker(WMobileNo,Labour,Mechanic,Electrician,Carpentry,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                            (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentry == 'on', 0, 0, MinPrize))
-        mysql.get_db().commit()
-        cur.close()
-        return redirect('/login')
+            if NA != 'on':
+                if others == 'on':
+                    cur.execute("INSERT INTO Worker(WMobileNo,Labour,Mechanic,Electrician,Carpentry,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                                (Num, 1, 1, 1, 1, 0, 0, MinPrize))
+                else:
+                    cur.execute("INSERT INTO Worker(WMobileNo,Labour,Mechanic,Electrician,Carpentry,WRating,Experience,MinPrice) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                                (Num, Labour == 'on', Mechanic == 'on', Electrician == 'on', Carpentry == 'on', 0, 0, MinPrize))
+            mysql.get_db().commit()
+            cur.close()
+            return redirect('/login')
+        return redirect('/signup')
     # after signup user goes to login page
     return render_template('signup.html')
 
@@ -170,32 +228,39 @@ def login():
         userdetails = request.form
         Num = userdetails.get('typeNoX')
         password = userdetails.get('typePasswordX')
+        password1 = generate_password_hash(password, method='sha256')
+        # print(password1)
+
         # signup()
 
         cur = mysql.get_db().cursor()
         cur.execute("SELECT * FROM PERSON where MobileNo='%s'" % Num)
-        user = cur.fetchone()  # fetchall can also be used
-        # print(user[MobileNo])
+        user = cur.fetchone()
         cur.execute("SELECT * FROM Worker where WMobileNo='%s'" % Num)
-        userWorker = cur.fetchone()
+        temp = cur.fetchone()
+        if temp == None:
+            temp = False
+        else:
+            temp = True
         cur.close()
-
         if user:
-            if password == user[1]:
+            if check_password_hash(user[1], password):
+                flash('Logged in successfully!', category='success')
+
                 session['loggedin'] = True
                 session['MobileNo'] = user[0]
                 session['Name'] = user[3]
                 session['user'] = user
-                session['userWorker'] = userWorker
+                session['userWorker'] = temp
                 return redirect('/')
             else:
-                return "password not correct"
+                flash('Password Not Correct!!!', category='error')
         else:
-            return "Mobile number Not Exists!!!"
+            flash('Mobile Number of Worker Not exist', category='error')
     return render_template('login.html')
 
 
-@app.route('/logout')
+@ app.route('/logout')
 def logout():
     session.pop('loggedin', None)
     session.pop('MobileNo', None)
@@ -204,7 +269,7 @@ def logout():
     return redirect('/home1')
 
 
-@app.route('/customer', methods=['GET', 'POST'])
+@ app.route('/customer', methods=['GET', 'POST'])
 def customer():
     if 'user' not in session:
         return redirect('/login')
@@ -254,7 +319,7 @@ def customer():
     return render_template('customers.html', user=user, data=data, userWorker=userWorker)
 
 
-@app.route('/worker')
+@ app.route('/worker')
 def worker():
     if 'user' not in session:
         return redirect('/login')
@@ -284,13 +349,13 @@ def worker():
     return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer, skill=skill)
 
 
-@app.route('/offer')
+@ app.route('/offer')
 def offer():
     return render_template('offer.html')
 
 
 # for deleting the offer by the customers in customers page
-@app.route('/delete/<int:sno>')
+@ app.route('/delete/<int:sno>')
 def delete(sno):
     user = session['user']
     cur = mysql.get_db().cursor()
@@ -303,7 +368,7 @@ def delete(sno):
     return redirect("/customer")
 
 
-@app.route('/delete1/<int:sno>')  # for deleting requests by Workers
+@ app.route('/delete1/<int:sno>')  # for deleting requests by Workers
 def delete1(sno):
     if 'user' not in session:
         return redirect('/login')
@@ -318,7 +383,7 @@ def delete1(sno):
 
 # link for reject option in whoreq page where customer
 # reject worker request.
-@app.route('/reject/<int:sno>/<string:workerNo>')
+@ app.route('/reject/<int:sno>/<string:workerNo>')
 def reject(sno=None, workerNo=None):
     if 'user' not in session:
         return redirect('/login')
@@ -335,7 +400,7 @@ def reject(sno=None, workerNo=None):
 
 
 # worker request from given work list
-@app.route('/req/<int:sno>')  # for requesting work by worker on sno worker id
+@ app.route('/req/<int:sno>')  # for requesting work by worker on sno worker id
 def req(sno):
     if 'user' not in session:
         return redirect('/login')
@@ -348,7 +413,7 @@ def req(sno):
         cur.execute(
             "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (user[0], sno))
     else:
-        #accepted[2] is dateTime
+        # accepted[2] is dateTime
         cur.execute(
             "SELECT * FROM WorkRecord WHERE WMobileNo='{}' AND Offer_id='{}' AND DateTime='{}'".format(user[0], accepted[1], accepted[2]))
         wr = cur.fetchone()
@@ -363,7 +428,7 @@ def req(sno):
     return redirect("/worker")
 
 
-@app.route('/update/<int:sno>', methods=['GET', 'POST'])
+@ app.route('/update/<int:sno>', methods=['GET', 'POST'])
 def update(sno):
     cur = mysql.get_db().cursor()
     user = session['user']
@@ -402,7 +467,7 @@ def update(sno):
     return render_template('update.html', data=data)
 
 
-@app.route('/cusCompleted/<int:sno>/<string:WMobileNo>', methods=['GET', 'POST'])
+@ app.route('/cusCompleted/<int:sno>/<string:WMobileNo>', methods=['GET', 'POST'])
 def cusCompleted(sno=None, WMobileNo=None):
     if 'user' not in session:
         return redirect('/login')
@@ -457,7 +522,7 @@ def cusCompleted(sno=None, WMobileNo=None):
     return render_template("cusCompleted.html", data=data)
 
 
-@app.route('/worCompleted/<int:sno>', methods=['GET', 'POST'])
+@ app.route('/worCompleted/<int:sno>', methods=['GET', 'POST'])
 def worCompleted(sno=None):
     if 'user' not in session:
         return redirect('/login')
@@ -521,7 +586,7 @@ def worCompleted(sno=None):
     return render_template("worCompleted.html", data=data)
 
 
-@app.route('/accept/<int:sno>/<string:workerNo>')
+@ app.route('/accept/<int:sno>/<string:workerNo>')
 def accept(sno=None, workerNo=None):
     if 'user' not in session:
         return redirect('/login')
@@ -541,7 +606,7 @@ def accept(sno=None, workerNo=None):
     return redirect(s)
 
 
-@app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
+@ app.route('/whoreq/<int:sno>', methods=['GET', 'POST'])
 def whoreq(sno):
     if 'user' not in session:
         return redirect('/login')
