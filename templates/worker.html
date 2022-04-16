@@ -8,10 +8,22 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      crossorigin="anonymous"
+    />
     <title>worker</title>
     <style>
             div.scroll {
+              border-radius:10px ;
                 margin:4px, 4px;
                 padding:4px;
                 background-color: rgb(253, 253, 253);
@@ -24,23 +36,23 @@
             }
         .my-4 {
           border:1px solid black;
+          border-radius: 10px;
         }    
         h1 {
-            color: rebeccapurple;
+            color: rgb(0, 0, 0);
             text-align: center;
         }
         h2 {
-            color: rebeccapurple;
+            color: rgb(0, 0, 0);
             text-align: center;
         }
         
-        /* header {
-            width: 100%;
-            height: 170vh;
-            background-image: linear-gradient(rgba(226, 58, 58, 0.3), rgba(0, 0, 0, 0.15)), url("https://www.w3schools.com/bootstrap/la.jpg");
-            background-repeat: no-repeat;
-            background-size: cover;
-        } */
+        header {
+            
+            
+            /* background-color: aquamarine; */
+            
+        }
     </style>
 </head>
 
@@ -71,8 +83,27 @@
 
         </div>
     </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+     {% if messages %} 
+      {% for category, message in messages %}
+       {% if category =='error' %}
+    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% else %}
+    <div class="alert alert-success alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %}
+
     {% if accept_offer :%}
-    <h2>Accepted Offer</h2>
+    <h2><mark>Accepted Offer</mark></h2>
     <div class="container my-4">
         
         <table class="table table-striped table-hover">
@@ -105,7 +136,7 @@
         
       </div>
       {% if requested :%}  
-      <h2>Requested's Offers</h2>  
+      <h2><mark>Requested's Offers</mark></h2>  
       <div class="container my-4 scroll">
         <table class="table table-striped table-hover">
             <thead>
@@ -127,7 +158,7 @@
                     <td>{{row[7]}}</td>
                     <td>
                         <a type="button" href="/delete1/{{row[0]}}" class="btn btn-outline-dark btn-sm"
-                        style="background-color: #cbaca1;">
+                        style="background-color: #f9acac;">
                 delete
               </button>
             </td>
@@ -137,7 +168,7 @@
       </table>
     </div>
     {%if data :%}
-    <h2>Today's Offers</h2>
+    <h2><mark>Today's Offers</mark></h2>
     <div class="container my-4 scroll">
        
       <table class="table table-striped table-hover">
