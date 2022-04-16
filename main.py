@@ -391,10 +391,9 @@ def delete(sno):
                 WRating, worker[6]+1, each[0]))
             cur.execute()
             mysql.get_db().commit()
-
+    cur.execute("DELETE FROM Request_Table WHERE offer_id = %s", (sno))
+    cur.execute("DELETE FROM RejectedRequest WHERE offer_id = %s", (sno))
     cur.execute("DELETE FROM ActiveOffers WHERE offer_id = %s", (sno))
-    cur.execute(
-        "DELETE FROM Offers WHERE offer_id =%s", (sno))
     mysql.get_db().commit()
     cur.close()
     return redirect("/customer")
