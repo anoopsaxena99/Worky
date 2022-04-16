@@ -2,6 +2,7 @@
 from email.policy import default
 from xmlrpc.client import DateTime
 from flask import Flask, flash
+from flask_login import user_accessed
 from flaskext.mysql import MySQL
 from pymysql import NULL
 from sqlalchemy import null
@@ -135,6 +136,8 @@ def home():
         return redirect('/home1')
     user = session['user']
     userWorker = session['userWorker']
+    print(user)
+    print(userWorker)
     return render_template('home.html', user=user, userWorker=userWorker)
 
 
