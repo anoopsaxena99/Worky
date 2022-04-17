@@ -332,7 +332,7 @@ def customer():
         return redirect('/customer')
 
     cur.execute(
-        "SELECT * FROM ActiveOffers as a1 INNER JOIN Offers as a2 ON  a1.offer_id=a2.offer_id WHERE a2.CMobileNo='%s'" % user[0])
+        "SELECT * FROM ActiveOffers as a1 INNER JOIN Offers as a2 ON  a1.offer_id = a2.offer_id WHERE a2.CMobileNo='%s'" % user[0])
     data = cur.fetchall()
     mysql.get_db().commit()
     cur.close()
@@ -360,7 +360,6 @@ def worker():
     cur.execute(
         "SELECT DateTime FROM WorkRecord WHERE WMobileNo ='{}' AND CRating IS NOT NULL AND WRating IS NULL ".format(user[0]))
     data1 = cur.fetchall()
-    print(data1)
     cur.execute(
         "SELECT * FROM AcceptedRequest AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}' AND a1.DateTime Not IN (SELECT DateTime FROM WorkRecord WHERE WMobileNo = '{}' AND CRating IS NOT NULL AND WRating IS NULL)".format(user[0], user[0]))
     accept_offer = cur.fetchall()
@@ -374,10 +373,6 @@ def worker():
     cur.close()
     return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer, skill=skill, res=res)
 
-
-@ app.route('/offer')
-def offer():
-    return render_template('offer.html')
 
 
 # for deleting the offer by the customers in customers page
@@ -531,7 +526,7 @@ def update(sno):
     return render_template('update.html', data=data)
 
 
-@ app.route('/cusCompleted/<int:sno>/<string:WMobileNo>', methods=['GET', 'POST'])
+@ app.route('/cusCompleted/<int:sno>/<string:WMobileNo>', methods=['GET', 'POST'])#if worker complete the work and rate it
 def cusCompleted(sno=None, WMobileNo=None):
     if 'user' not in session:
         return redirect('/login')
