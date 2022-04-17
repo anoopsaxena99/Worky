@@ -70,7 +70,7 @@ def updatedatabase():
         if row not in res:
             res.append(row)
     values = res
-    # print(values)
+    # res[0] is a Worker Mobile Number
     cur = mysql.get_db().cursor()
 
     for row in values:
@@ -78,65 +78,65 @@ def updatedatabase():
         cur.execute(
             "SELECT * FROM Worker where WMobileNo='{}'".format(WMobileNo))
         check = cur.fetchone()
-        # print(WMobileNo, check)
         if check == None:
+            # he is only customer
             continue
         cur.execute(
             "SELECT * FROM AcceptedRequest where WMobileNo='{}'".format(WMobileNo))
         Arequest = cur.fetchall()
-        # print(Arequest)
+        # assumption that he is calling when there is an need of work
         for eachRequest in Arequest:
-            print(eachRequest)
+            # checking data in workrecord
             cur.execute("SELECT * FROM WorkRecord WHERE WMobileNo='{}' AND offer_id='{}' AND DateTime='{}'".format(
                 eachRequest[0], eachRequest[1], eachRequest[2]))
             temp = cur.fetchone()
-            # print(temp)
+            # Customer Mobile no is needed for there rating
             cur.execute(
                 "SELECT * FROM Offers where offer_id='{}'".format(eachRequest[1]))
             CMobileNo = cur.fetchone()
             CMobileNo = CMobileNo[0]
-            # print(CMobileNo)
+            # Customer initial rating
             cur.execute(
                 "SELECT * FROM Customer WHERE CMobileNo='{}'".format(CMobileNo))
             CRating = cur.fetchone()
             CRating = CRating[1]
+            # delete the accepted request when both of them rated it
             deleteit = False  # crating
-            if temp != None:
+            if temp != None and temp[3]:
                 deleteit = True
-            # print(CRating)
             if temp == None:
                 cur.execute(
                     "INSERT INTO WorkRecord(offer_id,WMobileNo,CRating,DateTime) VALUES(%s,%s,%s,%s)", (eachRequest[1], eachRequest[0], CRating, eachRequest[2]))
             else:
                 cur.execute(
                     "UPDATE WorkRecord SET CRating='{}' where offer_id='{}' AND WMobileNo='{}' AND DateTime='{}'".format(CRating, eachRequest[1], eachRequest[0], eachRequest[2]))
+
+            # updating of Noe of Customer field
             cur.execute(
-                "SELECT * FROM Offers Where offer_id='{}'".format(eachRequest[1]))
-            cmobile = cur.fetchone()
-            cmobile = cmobile[0]
-            cur.execute(
-                "SELECT * FROM Customer Where CMobileNo='{}'".format(cmobile))
-            temp = cur.fetchone()
+                "SELECT * FROM Customer Where CMobileNo='{}'".format(CMobileNo))
+            temp1 = cur.fetchone()
+
             cur.execute("UPDATE Customer SET NOE ='{}' WHERE CMobileNo='{}'".format(
-                temp[2]+1, cmobile))
+                temp1[2]+1, CMobileNo))
+
+            # deleting accepted request if both of them rated it
             if deleteit:
                 cur.execute(
-                    "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (sno, user[0]))
-                # cur.execute(
-                # "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (eachRequest[0], WMobileNo))
+                    "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (eachRequest[1], WMobileNo))
             mysql.get_db().commit()
+
+        # finding MinWage of Worker
         cur.execute(
             "SELECT * FROM Worker WHERE WMobileNo='{}'".format(WMobileNo))
         MinWage = cur.fetchone()
         MinWage = MinWage[7]
-        for row in values:
+        cur.execute(
+            "SELECT a1.offer_id FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}') AND a1.offer_id IN  (With b1 as (SELECT b3.offer_id,DailyWage,Labour,Mechanic,Electrician,Carpentry FROM ActiveOffers AS b3 INNER JOIN Offers ON b3.offer_id=Offers.offer_id),b2 as (SELECT * FROM Worker where WMobileNo='{}') select b1.offer_id from b1,b2 where b1.DailyWage>=b2.MinPrice AND ((b1.Labour=1 and b2.Labour=1) or (b1.Electrician=1 and b2.Electrician=1) or (b1.Carpentry=1 and b2.Carpentry=1) or (b1.Mechanic=1 and b2.Mechanic=1))) AND Offers.DailyWage>='{}'".format(row[0], row[0], row[0], row[0], row[0], MinWage))
+        Offers = cur.fetchall()
+        for eachOfferId in Offers:
             cur.execute(
-                "SELECT a1.offer_id FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}') AND a1.offer_id IN  (With b1 as (SELECT b3.offer_id,DailyWage,Labour,Mechanic,Electrician,Carpentry FROM ActiveOffers AS b3 INNER JOIN Offers ON b3.offer_id=Offers.offer_id),b2 as (SELECT * FROM Worker where WMobileNo='{}') select b1.offer_id from b1,b2 where b1.DailyWage>=b2.MinPrice AND ((b1.Labour=1 and b2.Labour=1) or (b1.Electrician=1 and b2.Electrician=1) or (b1.Carpentry=1 and b2.Carpentry=1) or (b1.Mechanic=1 and b2.Mechanic=1))) AND Offers.DailyWage>='{}'".format(row[0], row[0], row[0], row[0], row[0], MinWage))
-            Offers = cur.fetchall()
-            for eachOfferId in Offers:
-                cur.execute(
-                    "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (WMobileNo, eachOfferId[0]))
-                mysql.get_db().commit()
+                "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (WMobileNo, eachOfferId[0]))
+            mysql.get_db().commit()
     mysql.get_db().commit()
     cur.close()
     return redirect('/')
