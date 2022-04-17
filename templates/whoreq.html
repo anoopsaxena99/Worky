@@ -11,11 +11,10 @@
 
     <title>customer</title>
     <style>
-        .my-4 {
-            border: 1px solid black;
-            border-radius: 10px;
+      .my-4 {
+          border:1px solid black;
+          border-radius: 10px;
         }
-        
         h2 {
             /* color: rebeccapurple; */
             text-align: center;
@@ -32,9 +31,11 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Log-Out</a>
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">Log-Out</a>
                 </li>
+
+
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -71,8 +72,14 @@
                     <td>{{row[1]}}</td>
                     <td>{{row[2]}}</td>
                     <td>
-                        <a href="/cusCompleted/{{sno}}/{{row[1]}}" type="button" class="btn btn-outline-dark btn-sm mx-1" style="background-color: #90c790;">
+                      {%if row[1] not in res:%}  
+                      <a href="/cusCompleted/{{sno}}/{{row[1]}}" type="button" class="btn btn-outline-dark btn-sm mx-1" style="background-color: #90c790;">
                 Work Completed
+                {%endif%}
+                {%if row[1] in res:%}  
+                      <a href="/cusCompleted/{{sno}}/{{row[1]}}" type="button" class="btn btn-outline-dark btn-sm mx-1" style="background-color: #f2f27f;">
+                Worker Rated it Please Rate
+                {%endif%}
               </button>
             </td>
           </tr>
