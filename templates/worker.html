@@ -125,8 +125,12 @@
                     <td>{{row[7]}}</td>
                     <td>{{row[8]}}</td>
                     <td>
-                        <a type="button" href="/worCompleted/{{row[1]}}" class="btn btn-outline-dark btn-sm" style="background-color: #90c790;">
-                WorkCompleted          
+                      {% if row[1] not in res : %}  
+                      <a type="button" href="/worCompleted/{{row[1]}}" class="btn btn-outline-dark btn-sm" style="background-color: #90c790;">
+                      WorkCompleted  {%endif%}
+                     {% if row[1] in res : %} 
+                     <a type="button" href="/worCompleted/{{row[1]}}" class="btn btn-outline-dark btn-sm" style="background-color: #ecef82;">
+                     Customer rated it please rate it  {%endif%}        
               </button>
             </td>
           </tr>

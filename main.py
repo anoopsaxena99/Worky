@@ -100,6 +100,9 @@ def updatedatabase():
                 "SELECT * FROM Customer WHERE CMobileNo='{}'".format(CMobileNo))
             CRating = cur.fetchone()
             CRating = CRating[1]
+            deleteit = False  # crating
+            if temp != None:
+                deleteit = True
             # print(CRating)
             if temp == None:
                 cur.execute(
@@ -107,7 +110,18 @@ def updatedatabase():
             else:
                 cur.execute(
                     "UPDATE WorkRecord SET CRating='{}' where offer_id='{}' AND WMobileNo='{}' AND DateTime='{}'".format(CRating, eachRequest[1], eachRequest[0], eachRequest[2]))
-
+            cur.execute(
+                "SELECT * FROM Offers Where offer_id='{}'".format(eachRequest[1]))
+            cmobile = cur.fetchone()
+            cmobile = cmobile[0]
+            cur.execute(
+                "SELECT * FROM Customer Where CMobileNo='{}'".format(cmobile))
+            temp = cur.fetchone()
+            cur.execute("UPDATE Customer SET NOE ='{}' WHERE CMobileNo='{}'".format(
+                temp[2]+1, cmobile))
+            if deleteit:
+                cur.execute(
+                    "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (sno, user[0]))
                 # cur.execute(
                 # "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (eachRequest[0], WMobileNo))
             mysql.get_db().commit()
@@ -115,14 +129,14 @@ def updatedatabase():
             "SELECT * FROM Worker WHERE WMobileNo='{}'".format(WMobileNo))
         MinWage = cur.fetchone()
         MinWage = MinWage[7]
-        # for row in values:
-        #     cur.execute(
-        #         "SELECT a1.offer_id FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}') AND a1.offer_id IN  (With b1 as (SELECT b3.offer_id,DailyWage,Labour,Mechanic,Electrician,Carpentry FROM ActiveOffers AS b3 INNER JOIN Offers ON b3.offer_id=Offers.offer_id),b2 as (SELECT * FROM Worker where WMobileNo='{}') select b1.offer_id from b1,b2 where b1.DailyWage>=b2.MinPrice AND ((b1.Labour=1 and b2.Labour=1) or (b1.Electrician=1 and b2.Electrician=1) or (b1.Carpentry=1 and b2.Carpentry=1) or (b1.Mechanic=1 and b2.Mechanic=1))) AND Offers.DailyWage>='{}'".format(row[0], row[0], row[0], row[0], row[0], MinWage))
-        #     Offers = cur.fetchall()
-        #     for eachOfferId in Offers:
-        #         cur.execute(
-        #             "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (WMobileNo, eachOfferId[0]))
-        #         mysql.get_db().commit()
+        for row in values:
+            cur.execute(
+                "SELECT a1.offer_id FROM ActiveOffers AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE Offers.CMobileNo != '{}' AND a1.offer_id NOT IN (SELECT offer_id FROM Request_Table WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM RejectedRequest WHERE WMobileNo='{}') AND a1.offer_id NOT IN (SELECT offer_id FROM AcceptedRequest WHERE WMobileNo='{}') AND a1.offer_id IN  (With b1 as (SELECT b3.offer_id,DailyWage,Labour,Mechanic,Electrician,Carpentry FROM ActiveOffers AS b3 INNER JOIN Offers ON b3.offer_id=Offers.offer_id),b2 as (SELECT * FROM Worker where WMobileNo='{}') select b1.offer_id from b1,b2 where b1.DailyWage>=b2.MinPrice AND ((b1.Labour=1 and b2.Labour=1) or (b1.Electrician=1 and b2.Electrician=1) or (b1.Carpentry=1 and b2.Carpentry=1) or (b1.Mechanic=1 and b2.Mechanic=1))) AND Offers.DailyWage>='{}'".format(row[0], row[0], row[0], row[0], row[0], MinWage))
+            Offers = cur.fetchall()
+            for eachOfferId in Offers:
+                cur.execute(
+                    "INSERT INTO Request_Table(WMobileNo,Offer_id) VALUES(%s,%s)", (WMobileNo, eachOfferId[0]))
+                mysql.get_db().commit()
     mysql.get_db().commit()
     cur.close()
     return redirect('/')
@@ -136,9 +150,12 @@ def home():
         return redirect('/home1')
     user = session['user']
     userWorker = session['userWorker']
-    print(user)
-    print(userWorker)
-    return render_template('home.html', user=user, userWorker=userWorker)
+    cur = mysql.get_db().cursor()
+    cur.execute("SELECT * FROM Worker where WMobileNo='%s'" % user[0])
+    worinfo = cur.fetchone()
+    cur.execute("SELECT * FROM Customer where CMobileNo='%s'" % user[0])
+    cusinfo = cur.fetchone()
+    return render_template('home.html', user=user, userWorker=userWorker, worinfo=worinfo, cusinfo=cusinfo)
 
 
 @app.route('/home1')
@@ -202,11 +219,9 @@ def signup():
             password2 = generate_password_hash(password1, method='sha256')
             print(password2)
             password1 = generate_password_hash(password1, method='sha256')
-            print(password1)
-            print(type(password1))
             cur = mysql.get_db().cursor()
-            cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime) VALUES(%s,%s,%s,%s,%s,%s)",
-                        (Num, password1, Adhar_Id, name, dob, now))
+            cur.execute("INSERT INTO PERSON(MobileNo,Password,AdharNumber,Name,DOB,DateTime,Adress) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                        (Num, password1, Adhar_Id, name, dob, now, Adress))
             cur.execute(
                 "INSERT INTO Customer(CMobileNo,CRating,NOE) VALUES(%s,%s,%s)", (Num, 0, 0))
 
@@ -248,8 +263,6 @@ def login():
         cur.close()
         if user:
             if check_password_hash(user[1], password):
-                flash('Logged in successfully!', category='success')
-
                 session['loggedin'] = True
                 session['MobileNo'] = user[0]
                 session['Name'] = user[3]
@@ -347,9 +360,15 @@ def worker():
     cur.execute(
         "SELECT * FROM AcceptedRequest AS a1 INNER JOIN Offers ON a1.offer_id=Offers.offer_id WHERE a1.WMobileNo ='{}' AND a1.DateTime Not IN (SELECT DateTime FROM WorkRecord WHERE WMobileNo = '{}' AND CRating IS NOT NULL AND WRating IS NULL)".format(user[0], user[0]))
     accept_offer = cur.fetchall()
+    cur.execute(
+        "SELECT offer_id FROM AcceptedRequest WHERE WMobileNo ='{}' AND offer_id IN (SELECT offer_id FROM WorkRecord WHERE WMobileNo='{}') AND DateTime IN (SELECT DateTime FROM WorkRecord WHERE WMobileNo='{}')".format(user[0], user[0], user[0]))
+    data1 = cur.fetchall()
+    res = []
+    for each in data1:
+        res.append(each[0])
     mysql.get_db().commit()
     cur.close()
-    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer, skill=skill)
+    return render_template('worker.html', data=data, requested=requested, accept_offer=accept_offer, skill=skill, res=res)
 
 
 @ app.route('/offer')
@@ -365,11 +384,12 @@ def delete(sno):
     # first we have to delete from active offer than we can delete from offer table.
 
     # first see is there any accepted Request or not
-    cur.execute("SELECT * AcceptedRequest WHERE offer_id = %s", (sno))
+    cur.execute("SELECT * FROM AcceptedRequest WHERE Offer_id='%s'", (sno))
     AcceptedRequest = cur.fetchall()
     if AcceptedRequest:
         # if there is accepted request then we have to rate all the accepted workers.
         for each in AcceptedRequest:
+            # selecting work record for checking that is he rated the worker or not
             cur.execute(
                 "SELECT * FROM WorkRecord WHERE  offer_id='{}' AND WMobileNo='{}' AND DateTime='{}'".format(each[1], each[0], each[2]))
             data = cur.fetchone()
@@ -378,25 +398,31 @@ def delete(sno):
                 "SELECT * FROM Worker WHERE WMobileNo='{}'".format(each[0]))
             worker = cur.fetchone()
             WRating = worker[5]
-            if data != None:
-                deleteit = True
+
             if data:
                 # print("update Working")
-                cur.execute(
-                    "UPDATE WorkRecord SET WRating='{}' where offer_id='{}' AND WMobileNo='{}'AND DateTime='{}'".format(WRating, each[1], each[0], each[2]))
+                if data[3] and data[2]:
+                    deleteit = True
+                if data[3]:
+                    print("hello")
+                else:
+                    cur.execute(
+                        "UPDATE WorkRecord SET WRating='{}' where offer_id='{}' AND WMobileNo='{}'AND DateTime='{}'".format(WRating, each[1], each[0], each[2]))
             else:
                 cur.execute(
                     "INSERT INTO WorkRecord(offer_id,WMobileNo,WRating,DateTime) VALUES(%s,%s,%s,%s)", (each[1], each[0], WRating, each[2]))
+
             if deleteit:
                 cur.execute(
                     "DELETE FROM AcceptedRequest WHERE Offer_id =%s AND WMobileNo=%s", (each[1], each[0]))
             cur.execute("UPDATE Worker SET WRating='{}' , Experience ='{}' WHERE WMobileNo='{}'".format(
                 WRating, worker[6]+1, each[0]))
-            cur.execute()
             mysql.get_db().commit()
-    cur.execute("DELETE FROM Request_Table WHERE offer_id = %s", (sno))
+
     cur.execute("DELETE FROM RejectedRequest WHERE offer_id = %s", (sno))
+    cur.execute("DELETE FROM Request_Table WHERE offer_id = %s", (sno))
     cur.execute("DELETE FROM ActiveOffers WHERE offer_id = %s", (sno))
+
     mysql.get_db().commit()
     cur.close()
     return redirect("/customer")
@@ -656,9 +682,15 @@ def whoreq(sno):
     data = cur.fetchall()
     cur.execute("with a1 as (SELECT b1.Offer_id , b1.WMobileNo , Worker.WRating FROM AcceptedRequest as b1 INNER JOIN Worker on b1.WMobileNo=Worker.WMobileNo WHERE b1.Offer_id IN (SELECT offer_id FROM ActiveOffers) AND b1.Offer_id='{}' AND b1.DateTime NOT IN (SELECT DateTime FROM WorkRecord WHERE offer_id ='{}' AND WRating IS NOT NULL AND CRating IS NULL))         SELECT a1.Offer_id , a1.WMobileNo , a1.WRating , PERSON.Name  FROM a1 INNER JOIN PERSON on a1.WMobileNo=PERSON.MobileNo".format(sno, sno))
     accept_data = cur.fetchall()
+    cur.execute(
+        "SELECT WMobileNo FROM AcceptedRequest WHERE offer_id ='{}' AND WMobileNo IN (SELECT WMobileNo FROM WorkRecord WHERE offer_id ='{}') AND DateTime IN (SELECT DateTime FROM WorkRecord WHERE offer_id ='{}')".format(sno, sno, sno))
+    data1 = cur.fetchall()
+    res = []
+    for each in data1:
+        res.append(each[0])
     mysql.get_db().commit()
     cur.close()
-    return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data)
+    return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data, res=res)
 
 
 if __name__ == '__main__':

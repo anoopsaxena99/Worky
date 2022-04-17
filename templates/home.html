@@ -20,7 +20,7 @@
             /* fallback for old browsers */
             background: -webkit-linear-gradient(to right, #4ca2cd, #67B26F);
             /* Chrome 10-25, Safari 5.1-6 */
-            background: linear-gradient(to right, #f5f7f8, #9c9e9c);
+            background: linear-gradient(to right, #0c0c0c, #9c9e9c);
             /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
             padding: 0;
             margin: 0;
@@ -38,7 +38,7 @@
             height: 150px;
             object-fit: cover;
             margin: 10px auto;
-            border: 10px solid #ccc;
+            border: 10px solid rgb(0, 0, 0);
             border-radius: 50%;
         }
         
@@ -109,7 +109,7 @@
     {% endif %} {% endfor %} {% endif %} {% endwith %} {% if user: %}
 
     <a href="/updateDatabase" class="btnone">Update Database here</a>
-    <h3 style="text-align: center">Hi {{user[3]}}</h3>
+    <h3 style="text-align: center"><mark><b>Hi {{user[3]}}</b></mark></h3>
     {% endif %}
 
 
@@ -144,23 +144,37 @@
                                 <tr>
                                     <th width="30%">Rating(as customer)</th>
                                     <td width="2%">:</td>
-                                    <td>B+</td>
+                                    <td>{{cusinfo[1]}}</td>
+                                </tr>
+                                <tr>
+                                    <th width="30%">Number of employment Generated(as customer)</th>
+                                    <td width="2%">:</td>
+                                    <td>{{cusinfo[2]}}</td>
                                 </tr>
                                 {%if userWorker == true %}
+                                
                                 <tr>
-                                    <th width="30%">Number of employee Generated</th>
+                                    <th width="30%">Experience(as worker)</th>
                                     <td width="2%">:</td>
-                                    <td>Group</td>
+                                    <td>{{worinfo[6]}}</td>
                                 </tr>
                                 <tr>
                                     <th width="30%">Rating(as worker)</th>
                                     <td width="2%">:</td>
-                                    <td>B+</td>
+                                    <td>{{worinfo[5]}}</td>
                                 </tr>
                                 <tr>
-                                    <th width="30%">Type of Work</th>
+                                    <th width="30%">Minimum Wage(as worker)</th>
                                     <td width="2%">:</td>
-                                    <td>B+</td>
+                                    <td>{{worinfo[7]}}</td>
+                                </tr>
+                                <tr>
+                                    <th width="30%">Type of Work chosen(as Worker)</th>
+                                    <td width="2%">:</td>
+                                    
+                                    <td>{%if worinfo[1] :%} Labour {%endif%} {%if worinfo[2] :%} Mechanic {%endif%} {%if worinfo[3] :%} Electrician {%endif%} {%if worinfo[4] :%} Carpentry {%endif%}</td>
+                                    
+                                    
                                 </tr>
                                 {%endif%}
                             </table>

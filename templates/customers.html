@@ -142,9 +142,10 @@
             </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/customer">customer</a>
-
+                        {% if userWorker :%}
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/worker">worker</a>
+                        {%endif%}
                     </div>
                 </li>
             </ul>
