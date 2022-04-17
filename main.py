@@ -306,7 +306,7 @@ def customer():
         electrician = workDetails.get('electrician')
         carpentry = workDetails.get('carpentry')
         others = workDetails.get('others')
-        if labour == 0:
+        if labour == 0 and mechanic == 0 and carpentry == 0 and electrician == 0:
             others = 1
         if others:
             labour = 1
@@ -315,16 +315,19 @@ def customer():
             carpentry = 1
         now = datetime.now()
         Td = now.strftime('%Y-%m-%d %H:%M:%S')
+        if not(workDetails and Days and Description and location and Wage):
+            flash("Please fill all Details", category="error")
+        else:
+            cur.execute("INSERT INTO Offers(CMobileNo,Days,Description,DailyWage,Address,DateTime,Labour,Mechanic,Electrician,Carpentry) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (user[0], Days, Description, Wage, location, now, labour, mechanic, electrician, carpentry))
 
-        cur.execute("INSERT INTO Offers(CMobileNo,Days,Description,DailyWage,Address,DateTime,Labour,Mechanic,Electrician,Carpentry) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (user[0], Days, Description, Wage, location, now, labour, mechanic, electrician, carpentry))
-
-        mysql.get_db().commit()
-        cur.execute("SELECT * FROM Offers WHERE DateTime='{}'".format(now))
-        Of = cur.fetchone()
-        cur.execute("INSERT INTO ActiveOffers(offer_id) VALUES(%s)" % Of[1])
-        mysql.get_db().commit()
-        cur.close()
+            mysql.get_db().commit()
+            cur.execute("SELECT * FROM Offers WHERE DateTime='{}'".format(now))
+            Of = cur.fetchone()
+            cur.execute(
+                "INSERT INTO ActiveOffers(offer_id) VALUES(%s)" % Of[1])
+            mysql.get_db().commit()
+            cur.close()
         return redirect('/customer')
 
     cur.execute(
@@ -513,7 +516,7 @@ def update(sno):
         now = datetime.now()
         Td = now.strftime('%Y-%m-%d %H:%M:%S')
 
-        print(user[0])
+        # print(user[0])
         cur.execute("UPDATE Offers SET Days=%s,Description=%s,DailyWage=%s,Address=%s, DateTime=%s, Labour=%s,  Mechanic=%s, Electrician=%s, Carpentry=%s WHERE offer_id =%s",
                     (days, description, Price, location, now, labour, mechanic, electrician, carpentry, sno))
         mysql.get_db().commit()
@@ -676,6 +679,7 @@ def whoreq(sno):
     if 'user' not in session:
         return redirect('/login')
     user = session['user']
+    userWorker = session['userWorker']
     cur = mysql.get_db().cursor()
     cur.execute(
         "with a1 as (SELECT b1.Offer_id , b1.WMobileNo , Worker.WRating FROM Request_Table as b1 INNER JOIN Worker on b1.WMobileNo=Worker.WMobileNo WHERE b1.Offer_id IN (SELECT offer_id FROM ActiveOffers) AND b1.Offer_id=%s)     SELECT a1.Offer_id , a1.WMobileNo , a1.WRating , PERSON.Name  FROM a1 INNER JOIN PERSON on a1.WMobileNo=PERSON.MobileNo" % sno)
@@ -690,7 +694,7 @@ def whoreq(sno):
         res.append(each[0])
     mysql.get_db().commit()
     cur.close()
-    return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data, res=res)
+    return render_template('whoreq.html', data=data, sno=sno, accept_data=accept_data, res=res, userWorker=userWorker)
 
 
 if __name__ == '__main__':

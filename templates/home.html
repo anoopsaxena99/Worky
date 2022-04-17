@@ -107,7 +107,9 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    {% endif %} {% endfor %} {% endif %} {% endwith %} {% if user: %}
+    {% endif %} {% endfor %} {% endif %} {% endwith %} 
+    
+    {% if user: %}
 
     <a href="/updateDatabase" class="btnone">Update Database here</a>
     <h3 style="text-align: center"><mark><b>Hi {{user[3]}}</b></mark></h3>
@@ -159,7 +161,6 @@
                                     <td width="2%">:</td>
                                     <td>{{worinfo[6]}}</td>
                                 </tr>
-                                {%if userWorker == true: %}
                                 <tr>
                                     <th width="30%">Rating(as worker)</th>
                                     <td width="2%">:</td>
