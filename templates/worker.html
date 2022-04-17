@@ -138,10 +138,10 @@
                     <td>
                       {% if row[1] not in res : %}  
                       <a type="button" href="/worCompleted/{{row[1]}}" class="btn btn-outline-dark btn-sm" style="background-color: #90c790;">
-                      WorkCompleted  {%endif%}
+                      <b>WorkCompleted </b> {%endif%}
                      {% if row[1] in res : %} 
                      <a type="button" href="/worCompleted/{{row[1]}}" class="btn btn-outline-dark btn-sm" style="background-color: #ecef82;">
-                     Customer rated it please rate it  {%endif%}        
+                     <b>Customer rated it please rate it</b>  {%endif%}        
               </button>
             </td>
           </tr>
@@ -174,7 +174,7 @@
                     <td>
                         <a type="button" href="/delete1/{{row[0]}}" class="btn btn-outline-dark btn-sm"
                         style="background-color: #f9acac;">
-                delete
+                <b>Delete</b>
               </button>
             </td>
           </tr>
@@ -207,7 +207,7 @@
             <td>
               <a type="button" href="/req/{{row[2]}}" class="btn btn-outline-dark btn-sm"
               style="background-color: #93bbc6;">
-                request
+                <b>Request</b>
               </button>
             </td>
           </tr>
