@@ -71,23 +71,24 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a
+                    <a class="nav-link" href="/">Home <span class="sr-only"></span></a
             >
           </li>
 
           <li class="nav-item">
             <a class="nav-link" href="/logout">Log-Out</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              More
-            </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/customer">customer</a> {% if userWorker : %}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/worker">worker</a> {% endif %}
-                    </div>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/customer">Customer</a>
                 </li>
+                {%if userWorker :%}
+                <li class="nav-item">
+                    <a class="nav-link" href="/worker">Worker</a>
+                </li>
+                {%endif%}
+
+
             </ul>
         </div>
     </nav>
@@ -144,23 +145,26 @@
                                 <tr>
                                     <th width="30%">Rating(as customer)</th>
                                     <td width="2%">:</td>
-                                    <td>B+</td>
+                                    <td>{{temp[1]}}</td>
                                 </tr>
-                                {%if userWorker == true %}
+
                                 <tr>
                                     <th width="30%">Number of employee Generated</th>
                                     <td width="2%">:</td>
-                                    <td>Group</td>
+                                    <td>{{temp[2]}}</td>
                                 </tr>
+                                {%if userWorker == true: %}
                                 <tr>
                                     <th width="30%">Rating(as worker)</th>
                                     <td width="2%">:</td>
-                                    <td>B+</td>
+                                    <td>{{Work_temp[5]}}</td>
                                 </tr>
                                 <tr>
                                     <th width="30%">Type of Work</th>
                                     <td width="2%">:</td>
-                                    <td>B+</td>
+                                    <td>
+                                        {% if Work_temp[1] == True :%} Labour, {%endif%} {% if Work_temp[2] == True :%} Mechanic, {%endif%} {% if Work_temp[3] == True :%} Electrician, {%endif%} {% if Work_temp[4] == True :%} Carpentry, {%endif%}
+                                    </td>
                                 </tr>
                                 {%endif%}
                             </table>

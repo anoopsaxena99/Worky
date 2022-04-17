@@ -138,7 +138,13 @@ def home():
     userWorker = session['userWorker']
     print(user)
     print(userWorker)
-    return render_template('home.html', user=user, userWorker=userWorker)
+    cur = mysql.get_db().cursor()
+    cur.execute("SELECT * FROM Customer where CMobileNo='%s'" % user[0])
+    temp = cur.fetchone()
+    cur.execute("SELECT * FROM Worker where WMobileNo='%s'" % user[0])
+    Work_temp = cur.fetchone()
+    cur.close()
+    return render_template('home.html', user=user, userWorker=userWorker,temp = temp,Work_temp=Work_temp)
 
 
 @app.route('/home1')
