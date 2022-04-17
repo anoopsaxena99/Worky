@@ -150,6 +150,7 @@ def home():
         return redirect('/home1')
     user = session['user']
     userWorker = session['userWorker']
+
     cur = mysql.get_db().cursor()
     cur.execute("SELECT * FROM Worker where WMobileNo='%s'" % user[0])
     worinfo = cur.fetchone()
