@@ -107,9 +107,7 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    {% endif %} {% endfor %} {% endif %} {% endwith %} 
-    
-    {% if user: %}
+    {% endif %} {% endfor %} {% endif %} {% endwith %} {% if user: %}
 
     <a href="/updateDatabase" class="btnone">Update Database here</a>
     <h3 style="text-align: center"><mark><b>Hi {{user[3]}}</b></mark></h3>
@@ -143,6 +141,11 @@
                                     <td width="2%">:</td>
                                     <td>{{user[4]}}</td>
                                 </tr>
+                                <tr>
+                                    <th width="30%">Address</th>
+                                    <td width="2%">:</td>
+                                    <td>{{user[6]}}</td>
+                                </tr>
 
                                 <tr>
                                     <th width="30%">Rating(as customer)</th>
@@ -155,7 +158,7 @@
                                     <td>{{cusinfo[2]}}</td>
                                 </tr>
                                 {%if userWorker == true %}
-                                
+
                                 <tr>
                                     <th width="30%">Experience(as worker)</th>
                                     <td width="2%">:</td>
@@ -174,10 +177,10 @@
                                 <tr>
                                     <th width="30%">Type of Work chosen(as Worker)</th>
                                     <td width="2%">:</td>
-                                    
+
                                     <td>{%if worinfo[1] :%} Labour {%endif%} {%if worinfo[2] :%} Mechanic {%endif%} {%if worinfo[3] :%} Electrician {%endif%} {%if worinfo[4] :%} Carpentry {%endif%}</td>
-                                    
-                                    
+
+
                                 </tr>
                                 {%endif%}
                             </table>
